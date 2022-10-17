@@ -1,5 +1,6 @@
 import React from 'react';
 import Block from './block';
+import { setCaretToEnd } from './setCaretToEnd';
 import './index.css';
 
 const generateID = () => {
@@ -31,7 +32,7 @@ class Document extends React.Component {
   }
 
   insertNewBlock(blockBefore) {
-    const blockToAdd = { id: generateID(), class: "h1", content: "" };
+    const blockToAdd = { id: generateID(), class: "p", content: "" };
     const blocks = this.state.blocks;
     const index = this.state.blocks.findIndex(block => block.id === blockBefore.id);
     const changedBlocks = [...blocks];
@@ -44,17 +45,21 @@ class Document extends React.Component {
   }
 
   removeBlock(blockToRemove) {
-    const blocks = this.state.blocks;
-    const index = this.state.blocks.findIndex(block => block.id === blockToRemove.id);
-    const changedBlocks = [...blocks];
-    changedBlocks.splice(index, 1);
+    if (this.state.blocks.length > 1){
+      const blocks = this.state.blocks;
+      const index = this.state.blocks.findIndex(block => block.id === blockToRemove.id);
+      const changedBlocks = [...blocks];
+      changedBlocks.splice(index, 1);
+      const previousBlock = blockToRemove.ref.previousElementSibling;
+     
+      this.setState({ blocks: changedBlocks }, () => {
+      /// TODO: setCaretToEnd: a legutolsó karakterre állítja a kurzort
+        setCaretToEnd(previousBlock);
+        previousBlock.focus();
+      });
+      
+    }
 
-    const previousBlock = blockToRemove.ref.previousElementSibling;
-    this.setState({ blocks: changedBlocks }, () => {
-    /// setCaretToEnd: a legutolsó karakterre állítja a kurzort
-    ///  setCaretToEnd(blockToRemove);
-    });
-    previousBlock.focus();
   }
   render() {
     return (

@@ -8,6 +8,13 @@ import reportWebVitals from './reportWebVitals';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <h1 className="Logo">notszli</h1><p className="Intro">
+              hi there!{" "}
+              <span role="img" aria-label="greetings" className="Emoji">
+                👋
+              </span>{" "}
+              You can add content below. Type <span className="Code">/</span> for commands!
+            </p>
     <Document />
   </React.StrictMode>
 );
