@@ -1,16 +1,20 @@
 import React from 'react';
 import Block from './block';
-import { setCaretToEnd } from './setCaretToEnd';
-import './index.css';
+import { setCaretToEnd } from '../utils/setCaretToEnd';
+import '../index.css';
 
 const generateID = () => {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+  return (
+    Date.now().toString(36) +
+    Math.random()
+      .toString(36)
+      .slice(2, 5)
+  );
 };
 
-const initialBlock = { id: generateID(), class: "h5", content: "Hi there!" };
+const initialBlock = { id: generateID(), class: 'h5', content: 'Hi there!' };
 
 class Document extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = { blocks: [initialBlock] };
@@ -21,20 +25,20 @@ class Document extends React.Component {
 
   updateDocument(changedBlock) {
     const blocks = this.state.blocks;
-    const index = this.state.blocks.findIndex(block => block.id === changedBlock.id);
+    const index = this.state.blocks.findIndex((block) => block.id === changedBlock.id);
     const changedBlocks = [...blocks];
     changedBlocks[index] = {
       ...changedBlocks[index],
       class: changedBlock.class,
-      content: changedBlock.content
+      content: changedBlock.content,
     };
     this.setState({ blocks: changedBlocks });
   }
 
   insertNewBlock(blockBefore) {
-    const blockToAdd = { id: generateID(), class: "p", content: "" };
+    const blockToAdd = { id: generateID(), class: 'p', content: '' };
     const blocks = this.state.blocks;
-    const index = this.state.blocks.findIndex(block => block.id === blockBefore.id);
+    const index = this.state.blocks.findIndex((block) => block.id === blockBefore.id);
     const changedBlocks = [...blocks];
     console.log(changedBlocks);
     // adding a new block to the array right after the block
@@ -45,21 +49,18 @@ class Document extends React.Component {
   }
 
   removeBlock(blockToRemove) {
-    if (this.state.blocks.length > 1){
+    if (this.state.blocks.length > 1) {
       const blocks = this.state.blocks;
-      const index = this.state.blocks.findIndex(block => block.id === blockToRemove.id);
+      const index = this.state.blocks.findIndex((block) => block.id === blockToRemove.id);
       const changedBlocks = [...blocks];
       changedBlocks.splice(index, 1);
       const previousBlock = blockToRemove.ref.previousElementSibling;
-     
       this.setState({ blocks: changedBlocks }, () => {
-      /// TODO: setCaretToEnd: a legutolsó karakterre állítja a kurzort
+        /// TODO: setCaretToEnd: a legutolsó karakterre állítja a kurzort
         setCaretToEnd(previousBlock);
-        previousBlock.focus();
       });
-      
+      previousBlock.focus();
     }
-
   }
   render() {
     return (

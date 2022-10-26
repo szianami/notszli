@@ -1,25 +1,36 @@
 import logo from './logo.svg';
 import './App.css';
+import './index.css';
+import Document from './components/document';
+import React from 'react';
+import { userAuthContext } from './context/userAuthContext';
+import Logout from './components/logout';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
+// todo: egy spinnert mutatni, amíg be nem töltődik az userAuthContext, viszont nem feltétlen itt!
+class App extends React.Component {
+  render() {
+    return (
+      <>
+        {this.context.user && (
+          <div className="header flex">
+            <Logout />
+          </div>
+        )}
+
+        <h1 className="Logo">notszli</h1>
+        <p className="Intro">
+          hi there!{' '}
+          <span role="img" aria-label="greetings" className="Emoji">
+            👋
+          </span>{' '}
+          You can add content below.Type <span className="Code">/</span> for commands!
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+        <Document />
+      </>
+    );
+  }
 }
+
+App.contextType = userAuthContext;
 
 export default App;

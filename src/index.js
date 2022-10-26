@@ -1,21 +1,42 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
 import App from './App';
-import Document from './document';
+import UserAuthContextProvider from './context/userAuthContext';
+import Register from './components/register';
+import Login from './components/login';
+import ProtectedRoute from './components/protectedRoute';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
 root.render(
   <React.StrictMode>
-    <h1 className="Logo">notszli</h1><p className="Intro">
-              hi there!{" "}
-              <span role="img" aria-label="greetings" className="Emoji">
-                👋
-              </span>{" "}
-              You can add content below. Type <span className="Code">/</span> for commands!
-            </p>
-    <Document />
+    <UserAuthContextProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <App />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <App />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Register />} />
+        </Routes>
+      </BrowserRouter>
+    </UserAuthContextProvider>
   </React.StrictMode>
 );
 
