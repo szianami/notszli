@@ -1,21 +1,38 @@
 import * as React from 'react';
+import GoogleButton from 'react-google-button';
 import { userAuthContext } from '../context/userAuthContext';
 import validator from 'validator';
 import { Snackbar, Alert } from '@mui/material';
+import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import Divider from '@mui/material/Divider';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+
+function Copyright(props) {
+  return (
+    <Typography variant="body2" color="text.secondary" align="center" {...props}>
+      {'Copyright © '}
+      <Link color="inherit" href="https://mui.com/">
+        Your Website
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
+  );
+}
 
 const theme = createTheme();
 
-class Register extends React.Component {
+class SignIn extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -58,7 +75,8 @@ class Register extends React.Component {
 
     await this.context.signUp(email, password, displayName).catch((err) => {
       console.log(err);
-      this.setState({ isAlertOpen: true, error: err.message });
+      this.setState({ isAlertOpen: true });
+      this.setState({ error: err.message });
     });
   };
 
@@ -88,17 +106,10 @@ class Register extends React.Component {
               alignItems: 'center',
             }}
           >
-            <Typography
-              component="h1"
-              variant="h5"
-              style={{
-                fontSize: '50px',
-                fontFamily: 'Segoe UI',
-                marginTop: '12vh',
-                fontWeight: '700',
-                textAlign: 'center',
-              }}
-            >
+            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
               Sign up to Notszli
             </Typography>
             <Box component="form" onSubmit={this.handleSubmit} noValidate sx={{ mt: 1 }}>
@@ -107,14 +118,14 @@ class Register extends React.Component {
                 required
                 fullWidth
                 id="email"
-                label="Email address"
+                label="Email Address"
                 name="email"
                 autoComplete="email"
                 autoFocus
                 error={!this.state.isEmailValid}
                 helperText={this.state.helperText}
               />
-              <TextField margin="normal" required fullWidth id="displayName" label="Your name" name="displayName" />
+              <TextField margin="normal" required fullWidth id="displayName" label="Display Name" name="displayName" />
               <TextField
                 margin="normal"
                 required
@@ -128,33 +139,25 @@ class Register extends React.Component {
               <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                 Go!
               </Button>
-              <Divider
-                variant="fullWidth"
-                style={{
-                  borderColor: '#1976d2',
-                }}
-              />
               <Grid container>
-                <Grid item xs={12}>
-                  <Button onClick={this.googleSignIn} fullWidth variant="outlined" sx={{ mt: 3, mb: 2 }}>
-                    <img src="https://img.icons8.com/color/30/null/google-logo.png" />
-                    Continue with Google
-                  </Button>
-                </Grid>
                 <Grid item>
                   <Link href="#" variant="body2">
                     {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>
+                <Grid item>
+                  <GoogleButton onClick={this.googleSignIn} className="g-btn" type="dark" />
+                </Grid>
               </Grid>
             </Box>
           </Box>
+          <Copyright sx={{ mt: 8, mb: 4 }} />
         </Container>
       </ThemeProvider>
     );
   }
 }
 
-Register.contextType = userAuthContext;
+SignIn.contextType = userAuthContext;
 
-export default Register;
+export default SignIn;

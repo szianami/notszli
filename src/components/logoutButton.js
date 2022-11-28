@@ -1,8 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserAuth } from '../context/userAuthContext';
+import LogoutSharpIcon from '@mui/icons-material/LogoutSharp';
+import { Tooltip, Fab } from '@mui/material';
 
-const Logout = () => {
+const LogoutButton = () => {
   const { logOut } = useUserAuth();
   const navigate = useNavigate();
   const handleLogout = async () => {
@@ -15,10 +17,10 @@ const Logout = () => {
   };
 
   return (
-    <button onClick={handleLogout} className="btn btn-light">
-      Logout
-    </button>
+    <Fab onClick={handleLogout} size="small" color="primary" aria-label="logout" sx={{ marginRight: '2rem' }}>
+      <LogoutSharpIcon />
+    </Fab>
   );
 };
 
-export default Logout;
+export default LogoutButton;

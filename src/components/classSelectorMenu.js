@@ -1,42 +1,37 @@
 import React from 'react';
 import { matchSorter } from 'match-sorter';
+import '../index.css';
 
 const MENU_HEIGHT = 150;
 const classes = [
   {
-    id: 'p',
+    class: 'h4',
+    label: 'Title',
+    text: 'Big section heading.',
+  },
+  {
+    class: 'h5',
+    label: 'Subtitle',
+    text: 'Medium section heading.',
+  },
+  {
+    class: 'h6',
+    label: 'Heading',
+    text: 'Small section heading.',
+  },
+  {
     class: 'p',
     label: 'Text',
     text: 'Just plain text.',
   },
   {
-    id: 'h1',
-    class: 'h1',
-    label: 'Heading 1',
-    text: 'Big section heading.',
-  },
-  {
-    id: 'h2',
-    class: 'h2',
-    label: 'Heading 2',
-    text: 'Medium section heading.',
-  },
-  {
-    id: 'h3',
-    class: 'h3',
-    label: 'Heading 3',
-    text: 'Small section heading.',
-  },
-  {
-    id: 'bullet',
-    class: 'ul',
-    label: 'Bulleted list',
+    class: 'li',
+    label: '• Bulleted list',
     text: 'A simple bulleted list.',
   },
   {
-    id: 'quote',
-    class: 'q',
-    label: 'Quote',
+    class: 'quote-block',
+    label: '| Quote',
     text: 'Create a quotation.',
   },
 ];
@@ -115,6 +110,42 @@ class ClassSelectorMenu extends React.Component {
     //console.log('command: ', this.state.command);
   }
 
+  renderLabel(className) {
+    switch (className) {
+      case 'p':
+        return <div style={{ paddingLeft: '16px' }}>Text</div>;
+        break;
+      case 'quote-block':
+        return <div className="quote-block">Quote</div>;
+        break;
+      case 'h4':
+        return (
+          <div className="h4" style={{ paddingLeft: '16px' }}>
+            Title
+          </div>
+        );
+        break;
+      case 'h5':
+        return (
+          <div className="h5" style={{ paddingLeft: '16px' }}>
+            Subtitle
+          </div>
+        );
+        break;
+      case 'h6':
+        return (
+          <div className="h6" style={{ paddingLeft: '16px' }}>
+            Header
+          </div>
+        );
+        break;
+      case 'li':
+        return <li>Bulleted list item</li>;
+      default:
+        return <></>;
+    }
+  }
+
   render() {
     const x = this.props.position.x;
     const y = this.props.position.y - MENU_HEIGHT;
@@ -134,7 +165,7 @@ class ClassSelectorMenu extends React.Component {
                 tabIndex="0"
                 onClick={() => this.props.onSelect(item.class)}
               >
-                {item.label}
+                {this.renderLabel(item.class)}
               </div>
             );
           })}

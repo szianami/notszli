@@ -7,10 +7,15 @@ import {
   signInWithPopup,
   onAuthStateChanged,
   signOut,
+  updateProfile,
 } from 'firebase/auth';
-import { auth } from '../utils/firebase';
 
-export const userAuthContext = createContext();
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../utils/firebase';
+
+export const userAuthContext = createContext({ user: '' });
+
+// TODO: mi folyik itt, a didMountban subscribeolunk az auth change-re, oké asszem értem
 
 class UserAuthContextProvider extends React.Component {
   constructor(props) {
@@ -18,36 +23,85 @@ class UserAuthContextProvider extends React.Component {
     this.state = {
       user: '',
     };
+    console.log('ctor usercontext: ', this.state.user);
+    this.signUp = this.signUp.bind(this);
+    this.logOut = this.logOut.bind(this);
+    this.googleSignIn = this.googleSignIn.bind(this);
+    this.addUserToFirestore = this.addUserToFirestore.bind(this);
   }
 
-  logIn(email, password) {
-    return signInWithEmailAndPassword(auth, email, password);
+  async logIn(email, password, displayName) {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password, displayName);
+    } catch (error) {
+      console.log(error.code, ' - Problems with login');
+      console.log(error.message);
+      throw new Error(error.message);
+    }
   }
 
-  signUp(email, password) {
-    return createUserWithEmailAndPassword(auth, email, password).then((user) => {
-      console.log(user);
-      if (user && user.user.emailVerified === false) {
-        sendEmailVerification(auth.currentUser).then(function() {
-          console.log('email verification sent to user');
+  async signUp(email, password, displayName) {
+    try {
+      const user = await createUserWithEmailAndPassword(auth, email, password).then(async (res) => {
+        updateProfile(res.user, {
+          displayName: displayName,
         });
-      }
-    });
+        await this.addUserToFirestore(res.user.uid, {
+          email: email,
+          displayName: displayName,
+        });
+      });
+      // ez itt csinál valamit?
+      this.setState({ user: user });
+    } catch (error) {
+      console.log(error.code, ' - Problems with signup');
+      console.log(error.message);
+      throw new Error(error.message);
+    }
   }
 
   logOut() {
+    this.setState({ user: '' });
     return signOut(auth);
   }
 
-  googleSignIn() {
+  async addUserToFirestore(uid, data) {
+    await setDoc(doc(db, 'users', uid), data)
+      .then(() => {
+        console.log('Added user to firestore!');
+      })
+      .catch((error) => {
+        console.log('Something went wrong with added user to firestore: ', error);
+      });
+  }
+
+  async googleSignIn() {
     const googleAuthProvider = new GoogleAuthProvider();
-    return signInWithPopup(auth, googleAuthProvider);
+    try {
+      const user = await signInWithPopup(auth, googleAuthProvider);
+
+      const docRef = doc(db, 'users', 'user.user.uid');
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        console.log('user already exists, no need to add to doc');
+      } else {
+        await this.addUserToFirestore(user.user.uid, {
+          email: user.user.email,
+          displayName: user.user.displayName,
+        });
+      }
+    } catch (error) {
+      console.log(error.code, ' - Problems with signup');
+      console.log(error.message);
+      throw new Error(error.message);
+    }
   }
 
   componentDidMount() {
     // After 4.0.0, the observer is only triggered on sign-in or sign-out
     this.unsubscribeAuth = onAuthStateChanged(auth, (currentuser) => {
-      console.log('Auth', currentuser);
+      console.log('Auth State Changed', currentuser);
+      console.log('auth subscription');
       this.setState({
         user: currentuser,
       });

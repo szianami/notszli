@@ -1,9 +1,20 @@
-import React from 'react';
-import { Link, Navigate } from 'react-router-dom';
-import { Form, Alert } from 'react-bootstrap';
-import { Button } from 'react-bootstrap';
-import GoogleButton from 'react-google-button';
+import * as React from 'react';
 import { userAuthContext } from '../context/userAuthContext';
+import { Snackbar, Alert } from '@mui/material';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
+import Link from '@mui/material/Link';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import Divider from '@mui/material/Divider';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import Navbar from './navbar';
+import { Navigate } from 'react-router-dom';
+
+const theme = createTheme();
 
 class Login extends React.Component {
   constructor(props) {
@@ -12,80 +23,123 @@ class Login extends React.Component {
       email: '',
       error: '',
       password: '',
+      user: false,
+      isAlertOpen: false,
     };
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleGoogleSignIn = this.handleGoogleSignIn.bind(this);
+    this.googleSignIn = this.googleSignIn.bind(this);
+    this.closeAlert = this.closeAlert.bind(this);
   }
 
-  logIn(email, password) {
-    return this.context.logIn(email, password);
-  }
+  handleSubmit = async (event) => {
+    event.preventDefault();
 
-  googleSignIn() {
-    return this.context.googleSignIn();
-  }
+    const data = new FormData(event.currentTarget);
+    const email = data.get('email');
+    const password = data.get('password');
 
-  handleSubmit = async (e) => {
-    e.preventDefault();
     this.setState({ error: '' });
-    try {
-      await this.logIn(this.state.email, this.state.password);
-      console.log('wtf');
-    } catch (err) {
-      this.setState({ error: err.message });
-    }
+    await this.context.logIn(email, password).catch((err) => {
+      this.setState({ isAlertOpen: true, error: err.message, user: true });
+    });
   };
 
-  handleGoogleSignIn = async (e) => {
-    e.preventDefault();
-    try {
-      await this.googleSignIn();
+  async googleSignIn() {
+    await this.context.googleSignIn().catch((err) => {
+      console.log(err);
+      this.setState({ isAlertOpen: true, error: err.message, user: true });
+    });
+  }
 
-      // navigate("/home");
-    } catch (error) {
-      console.log(error.message);
+  closeAlert(event, reason) {
+    if (reason === 'clickaway') {
+      return;
     }
-  };
+    this.setState({ isAlertOpen: false });
+  }
 
   render() {
     return (
       <>
-        {this.context.user && <Navigate to="/home" replace={true} />}
+        <Navbar />
+        {this.context.user && <Navigate to="/" replace={true} />}
 
-        <div className="p-4 box">
-          <h2 className="mb-3">Firebase Auth Login</h2>
-          {this.state.error && <Alert variant="danger">{this.state.error}</Alert>}
-          <Form onSubmit={this.handleSubmit}>
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Control
-                type="email"
-                placeholder="Email address"
-                onChange={(e) => this.setState({ email: e.target.value })}
+        <Snackbar open={this.state.isAlertOpen} autoHideDuration={3000} onClose={this.closeAlert}>
+          <Alert onClose={this.closeAlert} severity="error" sx={{ width: '100%' }}>
+            {this.state.error}
+          </Alert>
+        </Snackbar>
+
+        <Container component="main" maxWidth="xs">
+          <CssBaseline />
+          <Box
+            sx={{
+              marginTop: 8,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <Typography
+              component="h1"
+              variant="h5"
+              style={{
+                fontSize: '50px',
+                fontFamily: 'Segoe UI',
+                marginTop: '12vh',
+                fontWeight: '700',
+                textAlign: 'center',
+              }}
+              color="primary"
+            >
+              Log in
+            </Typography>
+            <Box component="form" onSubmit={this.handleSubmit} noValidate sx={{ mt: 1 }}>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="email"
+                label="Email address"
+                name="email"
+                autoComplete="email"
+                autoFocus
               />
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="formBasicPassword">
-              <Form.Control
-                type="current-password"
-                placeholder="Password"
-                onChange={(e) => this.setState({ password: e.target.value })}
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="current-password"
               />
-            </Form.Group>
-
-            <div className="d-grid gap-2">
-              <Button variant="primary" type="Submit">
-                Log In
+              <Button color="primary" type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+                Go!
               </Button>
-            </div>
-          </Form>
-          <hr />
-          <div>
-            <GoogleButton onClick={this.handleGoogleSignIn} className="g-btn" type="dark" />
-          </div>
-        </div>
-        <div className="p-4 box mt-3 text-center">
-          Don't have an account? <Link to="/signup">Sign up</Link>
-        </div>
+              <Divider
+                variant="fullWidth"
+                style={{
+                  borderColor: '#1976d2',
+                }}
+              />
+              <Grid container>
+                <Grid item xs={12}>
+                  <Button onClick={this.googleSignIn} fullWidth variant="outlined" sx={{ mt: 3, mb: 2 }}>
+                    <img src="https://img.icons8.com/color/30/null/google-logo.png" />
+                    Continue with Google
+                  </Button>
+                </Grid>
+                <Grid item>
+                  <Link href="/signup" variant="body2" style={{ textDecoration: 'none' }}>
+                    Don't have an account? Sign up
+                  </Link>
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        </Container>
       </>
     );
   }
