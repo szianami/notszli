@@ -1,6 +1,5 @@
 import * as React from 'react';
 import welcomeImg from '../images/welcome_computer_torso.png';
-import introFunctions from '../images/intro_functions.mp4';
 import documentExample from '../images/example.png';
 import teamDiscussionImg from '../images/team_discussion.png';
 import '../index.css';
@@ -102,19 +101,6 @@ export default class WelcomePage extends React.Component {
                 boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)',
               }}
               alt="an example of a document"
-            />
-
-            <video
-              src={introFunctions}
-              loop="true"
-              autoPlay="true"
-              muted="true"
-              style={{
-                marginTop: '0.5em',
-                width: '100%',
-                boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)',
-              }}
-              alt="a video on editing a block and its style"
             />
           </div>
           <div>
