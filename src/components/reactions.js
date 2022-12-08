@@ -90,17 +90,17 @@ class Reactions extends React.Component {
         id: doc.id,
       }));
 
-      const comments = reactions.filter((reaction) => {
+      const comments = [];
+      for (let reaction of reactions) {
         if (
           reaction.authorId === auth.currentUser.uid &&
           reaction.type === 'like'
         )
           this.setState({ userLikeId: reaction.id });
         if (reaction.type === 'comment') {
-          return reaction;
+          comments.push(reaction);
         }
-        return;
-      });
+      }
 
       for (let comment of comments) {
         const author = await this.getAuthorOfComment(comment.authorId);
@@ -118,7 +118,7 @@ class Reactions extends React.Component {
         return timestampOfB - timestampOfA;
       });
 
-      comments.map((comment) => {
+      comments.forEach((comment) => {
         if (comment.timestamp) {
           comment.timestamp = comment.timestamp.toDate();
         }

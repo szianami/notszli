@@ -71,8 +71,7 @@ class Sidebar extends React.Component {
   deleteDocument = async () => {
     if (this.state.selectedDocument) {
       // blokkok letörlése -- sortedBlockIds-zal elég? van olyan blokk, ami ebben nincs benne?
-      this.state.selectedDocument.sortedBlockIds.map((blockId) => {
-        console.log(blockId);
+      this.state.selectedDocument.sortedBlockIds.forEach((blockId) => {
         deleteDoc(doc(db, 'blocks', blockId));
       });
 

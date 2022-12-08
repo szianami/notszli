@@ -13,10 +13,6 @@ import { Grid } from '@mui/material';
 TimeAgo.addDefaultLocale(en);
 
 class Comment extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     return (
       <Grid container wrap="nowrap" spacing={2}>
