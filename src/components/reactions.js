@@ -2,26 +2,15 @@ import React from 'react';
 
 import '../index.css';
 
-import { userAuthContext } from '../context/userAuthContext';
 import { documentsContext } from '../context/documentsContext';
 
-import TimeAgo from 'javascript-time-ago';
-import ReactTimeAgo from 'react-time-ago';
-import en from 'javascript-time-ago/locale/en.json';
-
 import SmsIcon from '@mui/icons-material/Sms';
-import SendRoundedIcon from '@mui/icons-material/SendRounded';
-import SendSharpIcon from '@mui/icons-material/SendSharp';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import CloseIcon from '@mui/icons-material/Close';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import {
   doc,
-  addDoc,
   getDoc,
   setDoc,
   updateDoc,
@@ -35,14 +24,12 @@ import {
 
 import { db, auth } from '../utils/firebase';
 
-import { Paper, Grid, Fab, SvgIcon, Tooltip, Snackbar, TextField } from '@mui/material';
-import stc from 'string-to-color';
-import { getAvatar } from '../utils/avatar';
+import { Paper, Grid, Fab, SvgIcon, Tooltip, Snackbar } from '@mui/material';
 import EditVisibilityDialog from './editVisibilityDialog';
+import Comment from './comment';
+import AddCommentDialog from './addCommentDialog';
 
-TimeAgo.addDefaultLocale(en);
-
-class Comments extends React.Component {
+class Reactions extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -54,16 +41,17 @@ class Comments extends React.Component {
       isVisibilityDialogOpen: false,
       userLikeId: null,
     };
-    this.handleClose = this.handleClose.bind(this);
+
     this.handleClickOpen = this.handleClickOpen.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
     this.handleContentChange = this.handleContentChange.bind(this);
     this.loadReactions = this.loadReactions.bind(this);
     this.handleLike = this.handleLike.bind(this);
-    this.closeAlert = this.closeAlert.bind(this);
-    this.openAlert = this.openAlert.bind(this);
+    this.closeCopyAlert = this.closeCopyAlert.bind(this);
+    this.openCopyAlert = this.openCopyAlert.bind(this);
+    this.closeCommentDialog = this.closeCommentDialog.bind(this);
+    this.openCommentDialog = this.openCommentDialog.bind(this);
     this.openVisibilityDialog = this.openVisibilityDialog.bind(this);
-    this.handleCloseVisibilityDialog = this.handleCloseVisibilityDialog.bind(this);
+    this.updateVisibility = this.updateVisibility.bind(this);
   }
 
   componentDidMount() {
@@ -84,14 +72,9 @@ class Comments extends React.Component {
   }
 
   loadReactions() {
-    // TODO !!! miez?
-    //if (!uid || this.uid === uid) return;
-    //this.uid = uid;
-
     this.setState({ userLikeId: null });
 
     if (!this.props.document) return;
-    console.log(this.props.document.id);
 
     if (this.unsubscribe) this.unsubscribe();
 
@@ -102,27 +85,31 @@ class Comments extends React.Component {
     ); // TODO add limit
 
     this.unsubscribe = onSnapshot(q, async (querySnapshot) => {
-      // console.log(querySnapshot.docs);
-      const reactions = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+      const reactions = querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
 
       const comments = reactions.filter((reaction) => {
-        if (reaction.authorId === auth.currentUser.uid && reaction.type === 'like')
+        if (
+          reaction.authorId === auth.currentUser.uid &&
+          reaction.type === 'like'
+        )
           this.setState({ userLikeId: reaction.id });
         if (reaction.type === 'comment') {
           return reaction;
         }
+        return;
       });
-
-      console.log('comments:', comments);
 
       for (let comment of comments) {
         const author = await this.getAuthorOfComment(comment.authorId);
-        console.log(author);
         Object.assign(comment, author);
-        console.log(comment);
       }
 
-      const authorOfDocument = await this.getAuthorOfComment(this.props.document.authorId);
+      const authorOfDocument = await this.getAuthorOfComment(
+        this.props.document.authorId
+      );
 
       this.setState({ authorOfDocument });
       comments.sort((a, b) => {
@@ -181,49 +168,17 @@ class Comments extends React.Component {
     this.setState({ isCommentOpen: true });
   };
 
-  handleClose = () => {
-    this.setState({ isCommentOpen: false });
-  };
+  openCommentDialog() {
+    this.setState({ isCommentOpen: true });
+  }
 
-  handleSubmit = async (event) => {
-    if (!this.props) return;
-
-    console.log(this.props.document.id);
-    await addDoc(collection(db, 'reactions'), {
-      type: 'comment',
-      timestamp: serverTimestamp(),
-      authorId: auth.currentUser.uid,
-      documentId: this.props.document.id,
-      text: this.state.content,
-    });
+  closeCommentDialog() {
     this.setState({ isCommentOpen: false });
-
-    /*
-    const docSnap = await getDoc(doc(db, 'documents', document.id));
-    const document = docSnap.data();
-    */
-    await updateDoc(doc(db, 'documents', this.props.document.id), {
-      reactionCount: {
-        comments: this.props.document.reactionCount.comments + 1 || 1,
-        likes: this.props.document.reactionCount.likes || 0,
-      },
-    });
-    this.setState({ isCommentOpen: false });
-  };
+  }
 
   handleContentChange = (event) => {
     this.setState({ content: event.target.value });
   };
-
-  getDisplayNameLetters(name) {
-    if (!name) return;
-    return name
-      .split(' ')
-      .map((item) => {
-        return item[0];
-      })
-      .join('');
-  }
 
   async getAuthorOfComment(uid) {
     const docRef = doc(db, 'users', uid);
@@ -236,14 +191,14 @@ class Comments extends React.Component {
     }
   }
 
-  closeAlert(event, reason) {
+  closeCopyAlert(event, reason) {
     if (reason === 'clickaway') {
       return;
     }
     this.setState({ isCopiedToClipboardOpen: false });
   }
 
-  openAlert() {
+  openCopyAlert() {
     this.setState({ isCopiedToClipboardOpen: true });
   }
 
@@ -251,10 +206,12 @@ class Comments extends React.Component {
     this.setState({ isVisibilityDialogOpen: true });
   }
 
-  handleCloseVisibilityDialog(value) {
+  updateVisibility(value) {
     // ha változás történt a visibiltyben, akkor küldje fel a firestoreba
-    console.log('doc id miafene ', this.props.document);
-    if (value !== this.props.document.visibility || !this.props.document.visibility) {
+    if (
+      value !== this.props.document.visibility ||
+      !this.props.document.visibility
+    ) {
       this.context.setVisibility(this.props.document.id, value);
     }
     this.setState({ isVisibilityDialogOpen: false });
@@ -266,16 +223,18 @@ class Comments extends React.Component {
         <Snackbar
           open={this.state.isCopiedToClipboardOpen}
           autoHideDuration={3000}
-          onClose={this.closeAlert}
+          onClose={this.closeCopyAlert}
           sx={{ width: '100%' }}
-          message={'Link to ' + this.props.document.title + ' copied to clipboard.'}
+          message={
+            'Link to ' + this.props.document.title + ' copied to clipboard.'
+          }
         />
 
         <EditVisibilityDialog
           // jajjaj mi itt a visibility?
           visibility={this.props.document.visibility}
           isOpen={this.state.isVisibilityDialogOpen}
-          onClose={this.handleCloseVisibilityDialog}
+          onClose={this.updateVisibility}
         />
 
         <Grid
@@ -298,7 +257,7 @@ class Comments extends React.Component {
                     color="primary"
                     aria-label="copy to clipboard"
                   >
-                    <SvgIcon>
+                    <SvgIcon sx={{ fontSize: 'large' }}>
                       <svg
                         aria-hidden="true"
                         data-prefix="fab"
@@ -328,9 +287,13 @@ class Comments extends React.Component {
                     aria-label="open visibility dialog"
                   >
                     {this.props.document.visibility === 'public' ? (
-                      <VisibilityIcon sx={{ color: 'white' }} />
+                      <VisibilityIcon
+                        sx={{ color: 'white', fontSize: 'large' }}
+                      />
                     ) : (
-                      <VisibilityOffIcon sx={{ color: 'white' }} />
+                      <VisibilityOffIcon
+                        sx={{ color: 'white', fontSize: 'large' }}
+                      />
                     )}
                   </Fab>
                 </Tooltip>
@@ -338,8 +301,13 @@ class Comments extends React.Component {
 
               <Grid style={{ display: 'flex', alignItems: 'center' }} item>
                 <Tooltip title="Comment on document">
-                  <Fab onClick={this.handleClickOpen} size="small" color="primary" aria-label="comment on document">
-                    <SmsIcon />
+                  <Fab
+                    onClick={this.openCommentDialog}
+                    size="small"
+                    color="primary"
+                    aria-label="comment on document"
+                  >
+                    <SmsIcon sx={{ fontSize: 'large' }} />
                   </Fab>
                 </Tooltip>
               </Grid>
@@ -347,128 +315,93 @@ class Comments extends React.Component {
               <Grid style={{ display: 'flex', alignItems: 'center' }} item>
                 {!!this.state.userLikeId ? (
                   <Tooltip title="Unlike this document">
-                    <Fab onClick={this.handleLike} size="small" color="error" aria-label="unlike document">
-                      <FavoriteIcon htmlColor="#fff" />
+                    <Fab
+                      onClick={this.handleLike}
+                      size="small"
+                      color="error"
+                      aria-label="unlike document"
+                    >
+                      <FavoriteIcon
+                        htmlColor="#fff"
+                        sx={{ fontSize: 'large' }}
+                      />
                     </Fab>
                   </Tooltip>
                 ) : (
                   <Tooltip title="Like this document">
-                    <Fab onClick={this.handleLike} size="small" color="primary" aria-label="like document">
-                      <FavoriteIcon htmlColor="#fff" />
+                    <Fab
+                      onClick={this.handleLike}
+                      size="small"
+                      color="primary"
+                      aria-label="like document"
+                    >
+                      <FavoriteIcon
+                        htmlColor="#fff"
+                        sx={{ fontSize: 'large' }}
+                      />
                     </Fab>
                   </Tooltip>
                 )}
               </Grid>
               <Grid style={{ display: 'flex', alignItems: 'center' }} item>
                 {this.props.document.reactionCount.comments > 1 ? (
-                  <h6 style={{ color: 'grey' }}>{this.props.document.reactionCount.comments} comments</h6>
+                  <h6 style={{ color: 'grey' }}>
+                    {this.props.document.reactionCount.comments} comments
+                  </h6>
                 ) : (
-                  <h6 style={{ color: 'grey' }}>{this.props.document.reactionCount.comments} comment</h6>
+                  <h6 style={{ color: 'grey' }}>
+                    {this.props.document.reactionCount.comments} comment
+                  </h6>
                 )}
               </Grid>
               <Grid style={{ display: 'flex', alignItems: 'center' }} item>
                 {this.props.document.reactionCount.likes > 1 ? (
-                  <h6 style={{ color: 'grey' }}>{this.props.document.reactionCount.likes} likes</h6>
+                  <h6 style={{ color: 'grey' }}>
+                    {this.props.document.reactionCount.likes} likes
+                  </h6>
                 ) : (
-                  <h6 style={{ color: 'grey' }}>{this.props.document.reactionCount.likes} like</h6>
+                  <h6 style={{ color: 'grey' }}>
+                    {this.props.document.reactionCount.likes} like
+                  </h6>
                 )}
               </Grid>
               <Grid style={{ display: 'flex', alignItems: 'center' }} item>
-                <h6 style={{ color: '#0f2e53' }}> {this.state.authorOfDocument.displayName} </h6>
+                <h6 style={{ color: '#0f2e53' }}>
+                  {' '}
+                  {this.state.authorOfDocument.displayName}{' '}
+                </h6>
               </Grid>
             </>
           ) : null}
         </Grid>
 
         {this.state.isCommentOpen ? (
-          <Paper
-            elevation={0}
-            style={{
-              backgroundColor: 'rgb(251, 251, 250)',
-              marginTop: '2em',
-              padding: '10px 15px',
-            }}
-          >
-            <Grid container wrap="nowrap" spacing={2}>
-              <Grid item>
-                <div className="avatar" style={{ backgroundColor: stc(auth.currentUser.displayName) }}>
-                  {this.getDisplayNameLetters(auth.currentUser.displayName)}
-                </div>
-              </Grid>
-              <Grid justifyContent="left" item xs zeroMinWidth>
-                <h6 style={{ marginTop: '5px', textAlign: 'left' }}>{auth.currentUser.displayName}</h6>
-                <p style={{ textAlign: 'left', color: 'gray' }}>{auth.currentUser.email}</p>
-                <TextField
-                  autoFocus
-                  margin="dense"
-                  id="title"
-                  name="title"
-                  label="Type your comment here"
-                  fullWidth
-                  multiline
-                  rows={2}
-                  variant="outlined"
-                  onChange={this.handleContentChange}
-                />
-              </Grid>
-            </Grid>
-            <Grid style={{ marginTop: '5px' }} container direction="row-reverse" spacing={2}>
-              <Grid item>
-                <Fab onClick={this.handleSubmit} size="small" color="primary" aria-label="like">
-                  <SendRoundedIcon />
-                </Fab>
-              </Grid>
-              <Grid item>
-                <Fab onClick={this.handleClose} size="small" color="primary" aria-label="like">
-                  <CloseIcon />
-                </Fab>
-              </Grid>
-            </Grid>
-          </Paper>
+          <AddCommentDialog
+            document={this.props.document}
+            closeCommentDialog={this.closeCommentDialog}
+          />
         ) : null}
 
-        <>
-          {this.state.comments.map((comment, index) => {
-            return (
-              <Paper
-                key={index}
-                elevation={0}
-                style={{
-                  backgroundColor: 'rgb(251, 251, 250)',
-                  marginTop: '2em',
-                  padding: '10px 15px',
-                }}
-              >
-                <Grid container wrap="nowrap" spacing={2}>
-                  <Grid item>
-                    <div className="avatar" style={{ backgroundColor: getAvatar(comment.displayName).color }}>
-                      {getAvatar(comment.displayName).letters}
-                    </div>
-                  </Grid>
-                  <Grid justifyContent="left" item xs zeroMinWidth>
-                    <Grid container direction="row" alignItems="center">
-                      <div style={{ fontSize: '1em', fontWeight: '600', paddingRight: '10px' }}>
-                        {comment.displayName}
-                      </div>
-                      <div style={{ color: 'gray' }}>{comment.email}</div>
-                    </Grid>
-                    <p style={{ marginTop: '10px', paddingLeft: '10px', textAlign: 'left' }}>{comment.text}</p>
-                    <div style={{ textAlign: 'right', paddingRight: '5px', color: 'gray' }}>
-                      {comment.timestamp ? (
-                        <ReactTimeAgo date={comment.timestamp} locale="en-US" timeStyle="round-minute" />
-                      ) : null}
-                    </div>
-                  </Grid>
-                </Grid>
-              </Paper>
-            );
-          })}
-        </>
+        {this.state.comments.map((comment, index) => {
+          return (
+            <Paper
+              key={index}
+              elevation={0}
+              style={{
+                backgroundColor: 'rgb(251, 251, 250)',
+                marginTop: '2em',
+                padding: '10px 15px',
+              }}
+            >
+              <Comment comment={comment} />
+            </Paper>
+          );
+        })}
       </>
     );
   }
 }
 
-Comments.contextType = documentsContext;
+Reactions.contextType = documentsContext;
 
-export default Comments;
+export default Reactions;

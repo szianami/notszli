@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserAuth } from '../context/userAuthContext';
 import LogoutSharpIcon from '@mui/icons-material/LogoutSharp';
-import { Tooltip, Fab } from '@mui/material';
+import { Fab } from '@mui/material';
 
 const LogoutButton = () => {
   const { logOut } = useUserAuth();
@@ -17,7 +17,13 @@ const LogoutButton = () => {
   };
 
   return (
-    <Fab onClick={handleLogout} size="small" color="primary" aria-label="logout" sx={{ marginRight: '2rem' }}>
+    <Fab
+      onClick={handleLogout}
+      size="small"
+      color="primary"
+      aria-label="logout"
+      sx={{ marginRight: '2rem' }}
+    >
       <LogoutSharpIcon />
     </Fab>
   );

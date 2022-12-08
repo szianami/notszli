@@ -2,7 +2,6 @@ import React, { createContext, useContext } from 'react';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  sendEmailVerification,
   GoogleAuthProvider,
   signInWithPopup,
   onAuthStateChanged,
@@ -32,7 +31,7 @@ class UserAuthContextProvider extends React.Component {
 
   async logIn(email, password, displayName) {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password, displayName);
+      await signInWithEmailAndPassword(auth, email, password, displayName);
     } catch (error) {
       console.log(error.code, ' - Problems with login');
       console.log(error.message);
@@ -42,7 +41,11 @@ class UserAuthContextProvider extends React.Component {
 
   async signUp(email, password, displayName) {
     try {
-      const user = await createUserWithEmailAndPassword(auth, email, password).then(async (res) => {
+      const user = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      ).then(async (res) => {
         updateProfile(res.user, {
           displayName: displayName,
         });
@@ -51,7 +54,6 @@ class UserAuthContextProvider extends React.Component {
           displayName: displayName,
         });
       });
-      // ez itt csinál valamit?
       this.setState({ user: user });
     } catch (error) {
       console.log(error.code, ' - Problems with signup');
@@ -62,6 +64,7 @@ class UserAuthContextProvider extends React.Component {
 
   logOut() {
     this.setState({ user: '' });
+    console.log('logout!');
     return signOut(auth);
   }
 
@@ -71,7 +74,10 @@ class UserAuthContextProvider extends React.Component {
         console.log('Added user to firestore!');
       })
       .catch((error) => {
-        console.log('Something went wrong with added user to firestore: ', error);
+        console.log(
+          'Something went wrong with added user to firestore: ',
+          error
+        );
       });
   }
 
@@ -80,10 +86,10 @@ class UserAuthContextProvider extends React.Component {
     try {
       const user = await signInWithPopup(auth, googleAuthProvider);
 
-      const docRef = doc(db, 'users', 'user.user.uid');
+      const docRef = doc(db, 'users', user.user.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        console.log('user already exists, no need to add to doc');
+        // user already exists, no need to add to doc
       } else {
         await this.addUserToFirestore(user.user.uid, {
           email: user.user.email,
@@ -98,10 +104,8 @@ class UserAuthContextProvider extends React.Component {
   }
 
   componentDidMount() {
-    // After 4.0.0, the observer is only triggered on sign-in or sign-out
     this.unsubscribeAuth = onAuthStateChanged(auth, (currentuser) => {
-      console.log('Auth State Changed', currentuser);
-      console.log('auth subscription');
+      console.log(currentuser);
       this.setState({
         user: currentuser,
       });

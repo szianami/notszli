@@ -10,11 +10,8 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import Navbar from './navbar';
 import { Navigate } from 'react-router-dom';
-
-const theme = createTheme();
 
 class Login extends React.Component {
   constructor(props) {
@@ -64,8 +61,16 @@ class Login extends React.Component {
         <Navbar />
         {this.context.user && <Navigate to="/" replace={true} />}
 
-        <Snackbar open={this.state.isAlertOpen} autoHideDuration={3000} onClose={this.closeAlert}>
-          <Alert onClose={this.closeAlert} severity="error" sx={{ width: '100%' }}>
+        <Snackbar
+          open={this.state.isAlertOpen}
+          autoHideDuration={3000}
+          onClose={this.closeAlert}
+        >
+          <Alert
+            onClose={this.closeAlert}
+            severity="error"
+            sx={{ width: '100%' }}
+          >
             {this.state.error}
           </Alert>
         </Snackbar>
@@ -94,7 +99,12 @@ class Login extends React.Component {
             >
               Log in
             </Typography>
-            <Box component="form" onSubmit={this.handleSubmit} noValidate sx={{ mt: 1 }}>
+            <Box
+              component="form"
+              onSubmit={this.handleSubmit}
+              noValidate
+              sx={{ mt: 1 }}
+            >
               <TextField
                 margin="normal"
                 required
@@ -115,7 +125,13 @@ class Login extends React.Component {
                 id="password"
                 autoComplete="current-password"
               />
-              <Button color="primary" type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+              <Button
+                color="primary"
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
                 Go!
               </Button>
               <Divider
@@ -126,13 +142,25 @@ class Login extends React.Component {
               />
               <Grid container>
                 <Grid item xs={12}>
-                  <Button onClick={this.googleSignIn} fullWidth variant="outlined" sx={{ mt: 3, mb: 2 }}>
-                    <img src="https://img.icons8.com/color/30/null/google-logo.png" />
+                  <Button
+                    onClick={this.googleSignIn}
+                    fullWidth
+                    variant="outlined"
+                    sx={{ mt: 3, mb: 2 }}
+                  >
+                    <img
+                      src="https://img.icons8.com/color/30/null/google-logo.png"
+                      alt="google logo"
+                    />
                     Continue with Google
                   </Button>
                 </Grid>
-                <Grid item>
-                  <Link href="/signup" variant="body2" style={{ textDecoration: 'none' }}>
+                <Grid item sx={{ marginLeft: 'auto', marginRight: 'auto' }}>
+                  <Link
+                    href="/register"
+                    variant="body2"
+                    style={{ textDecoration: 'none' }}
+                  >
                     Don't have an account? Sign up
                   </Link>
                 </Grid>

@@ -41,8 +41,13 @@ class EditSelectorMenu extends React.Component {
         <div className="Items">
           {this.state.items.map((item, key) => {
             return (
-              <div className="sidebar-document" key={key} role="button" onClick={() => this.props.onSelect(item.id)}>
-                <img src={item.img} />
+              <div
+                className="sidebar-document"
+                key={key}
+                role="button"
+                onClick={() => this.props.onSelect(item.id)}
+              >
+                <img src={item.img} alt="edit option" />
                 <div style={{ paddingLeft: '10px' }}>{item.text}</div>
               </div>
             );

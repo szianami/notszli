@@ -1,12 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import LoginSharpIcon from '@mui/icons-material/LoginSharp';
 import { Button } from '@mui/material';
 
 const LoginButton = () => {
   const navigate = useNavigate();
   const login = async () => {
     navigate('/login');
+  };
+
+  const register = async () => {
+    navigate('/register');
   };
 
   return (
@@ -28,7 +31,7 @@ const LoginButton = () => {
         Login
       </Button>
       <Button
-        onClick={login}
+        onClick={register}
         variant="contained"
         color="primary"
         sx={{

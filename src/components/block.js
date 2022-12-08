@@ -3,10 +3,8 @@ import ContentEditable from 'react-contenteditable';
 import ClassSelectorMenu from './classSelectorMenu';
 import { Draggable } from 'react-beautiful-dnd';
 import { setCaretToEnd } from '../setCaretToEnd';
-import DragHandleIcon from '../images/vertical-gray.png';
-import PlusIcon from '../images/icons8-plus-20.png';
-// <a href="https://www.flaticon.com/free-icons/drag-and-drop" title="drag and drop icons">Drag and drop icons created by SeyfDesigner - Flaticon</a>
-// <a target="_blank" href="https://icons8.com/icon/10617/asterisk">Asterisk</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import AddIcon from '@mui/icons-material/Add';
 import '../index.css';
 
 const getCaretCoordinates = () => {
@@ -60,11 +58,17 @@ class Block extends React.Component {
   }
 
   componentDidMount() {
-    this.setState({ content: this.props.content, className: this.props.className });
+    this.setState({
+      content: this.props.content,
+      className: this.props.className,
+    });
   }
 
   isBlockChanged(prevState) {
-    return prevState.content !== this.state.content || prevState.className !== this.state.className;
+    return (
+      prevState.content !== this.state.content ||
+      prevState.className !== this.state.className
+    );
   }
 
   componentDidUpdate(_prevProps, prevState) {
@@ -117,22 +121,21 @@ class Block extends React.Component {
         }
         break;
       default:
-        // mit kell figyelmen kivul hagyni?
-        // ctrl, alt, stb
-        // Shift
-        // előző billentyü shift, most pedig /
-        // bug: ha az utolsó leütés egy sima /, akkor azt nem updateeli
-        if (!event.ctrlKey && event.key !== 'Shift' && !(this.state.prevKey === 'Shift' && event.key === '/')) {
+        // keys to ignore:
+        // Ctrl, Alt, Shift ... -> control keys
+        // Shift + /
+        if (
+          !event.ctrlKey &&
+          event.key !== 'Shift' &&
+          !(this.state.prevKey === 'Shift' && event.key === '/')
+        ) {
           if (this.state.typingTimeout) {
             clearTimeout(this.state.typingTimeout);
           }
           this.setState({
             typingTimeout: setTimeout(() => {
-              console.log('timeout timeout you stopped typing!');
-              // this.sendToParent(this.props.id);
-              console.log('timeout utáni block content -', this.state.content);
               this.saveBlockToDB(this.state.content, undefined);
-            }, 1500),
+            }, 3000),
           });
         }
         break;
@@ -155,7 +158,6 @@ class Block extends React.Component {
   openClassSelectorMenu(event) {
     console.log('openClassSelectorMenu');
     if (!event) {
-      // console.log(x, y);
       const { x, y } = getCaretCoordinates();
       this.setState({
         isMenuOpen: true,
@@ -166,7 +168,6 @@ class Block extends React.Component {
       // ezzel megállítom az erre az eventre feliratkozóknak a továbbdobást, mert én ezt már lekezeltem!
       // így erre az eventre még nem reagál a closeClassSelector!
       event.stopPropagation();
-      console.log(event.clientX, event.clientY);
       this.setState({
         isMenuOpen: true,
         menuPosition: { x: event.clientX, y: event.clientY },
@@ -182,7 +183,6 @@ class Block extends React.Component {
   }
 
   closeClassSelectorMenu() {
-    console.log('closeClassSelectorMenu');
     this.setState({
       htmlBackup: '',
       isMenuOpen: false,
@@ -193,12 +193,15 @@ class Block extends React.Component {
 
   handleClassSelection(className) {
     this.setState(
-      { prevClass: this.state.className, className: className, content: this.state.prevContent.replace('/', '') },
+      {
+        prevClass: this.state.className,
+        className: className,
+        content: this.state.prevContent.replace('/', ''),
+      },
       () => {
         setCaretToEnd(this.contentEditable.current);
         this.closeClassSelectorMenu();
         if (this.state.prevClass !== this.state.className) {
-          console.log('edited classname, save block');
           this.saveBlockToDB(undefined, className);
         }
       }
@@ -206,19 +209,12 @@ class Block extends React.Component {
   }
 
   saveBlockToDB(content, className) {
-    console.log('save block');
     this.props.saveBlock({
       id: this.props.id,
-      index: this.props.index,
       className: className ? className : undefined,
-      // lehet hogy a class átadással is para van? docuban vizsgálni kéne?
       content: content ? content : undefined,
     });
   }
-
-  handleTextSelection = (event) => {
-    // console.log(window.getSelection().toString());
-  };
 
   handleMouseOver() {
     this.setState({ hovering: true });
@@ -226,11 +222,6 @@ class Block extends React.Component {
 
   handleMouseOut() {
     this.setState({ hovering: false });
-  }
-
-  handleDragHandleClick() {
-    // todo
-    console.log('draghandle');
   }
 
   renderTagContainer() {
@@ -252,7 +243,11 @@ class Block extends React.Component {
 
         <Draggable draggableId={this.props.id} index={this.props.position}>
           {(provided, snapshot) => (
-            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+            <div
+              ref={provided.innerRef}
+              {...provided.draggableProps}
+              {...provided.dragHandleProps}
+            >
               <div
                 className={this.renderTagContainer()}
                 onMouseOver={this.handleMouseOver}
@@ -261,14 +256,16 @@ class Block extends React.Component {
                 <div className="DragSymbol">
                   {this.state.hovering && (
                     <span role="button" onClick={this.openClassSelectorMenu}>
-                      <img src={PlusIcon} alt="Icon" />
+                      <AddIcon sx={{ color: '#c3c3c3', size: 'small' }} />
                     </span>
                   )}
                 </div>
                 <div className="DragSymbol">
                   {this.state.hovering && (
-                    <span role="button" onClick={this.handleDragHandleClick}>
-                      <img src={DragHandleIcon} alt="Icon" />
+                    <span role="button">
+                      <DragIndicatorIcon
+                        sx={{ color: '#c3c3c3', size: 'small' }}
+                      />
                     </span>
                   )}
                 </div>

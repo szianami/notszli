@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { useContext } from 'react';
+
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 import TextField from '@mui/material/TextField';
@@ -7,13 +9,13 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db } from '../utils/firebase';
-import { auth } from '../utils/firebase';
+import { documentsContext } from '../context/documentsContext';
 
 export default function AddNewDocument(id) {
   const [open, setOpen] = React.useState(false);
   const [title, setTitle] = React.useState('');
+
+  const context = useContext(documentsContext);
 
   const isNewDocument = id ? true : false;
 
@@ -26,19 +28,8 @@ export default function AddNewDocument(id) {
   };
 
   const handleSubmit = async (event) => {
-    console.log(title);
-
-    const docRef = await addDoc(collection(db, 'documents'), {
-      title: title,
-      authorId: auth.currentUser.uid,
-      timestamp: serverTimestamp(),
-      reactionCount: {
-        likes: 0,
-        comments: 0,
-      },
-      sortedBlockIds: [],
-    });
-    console.log(docRef);
+    event.preventDefault();
+    await context.addNewDocument(title);
     setOpen(false);
   };
 
@@ -48,17 +39,34 @@ export default function AddNewDocument(id) {
 
   return (
     <div>
-      <Button type="submit" variant="text" sx={{ textTransform: 'none' }} onClick={handleClickOpen}>
+      <Button
+        type="submit"
+        variant="text"
+        sx={{ textTransform: 'none' }}
+        onClick={handleClickOpen}
+      >
         <AddIcon color="primary" fontSize="small" sx={{ mr: 0.5 }} />
         <div
           className="sidebar-document-title"
-          style={{ width: 'fit-content', color: '#0f2e53', fontFamily: 'Segoe UI', fontSize: '16px' }}
+          style={{
+            width: 'fit-content',
+            color: '#0f2e53',
+            fontFamily: 'Segoe UI',
+            fontSize: '16px',
+          }}
         >
           {isNewDocument ? 'Add new document' : 'Edit document title'}
         </div>
       </Button>
-      <Dialog component="form" onSubmit={handleSubmit} open={open} onClose={handleClose}>
-        <DialogTitle>{isNewDocument ? 'Add new document' : 'Edit document title'}</DialogTitle>
+      <Dialog
+        component="form"
+        onSubmit={handleSubmit}
+        open={open}
+        onClose={handleClose}
+      >
+        <DialogTitle>
+          {isNewDocument ? 'Add new document' : 'Edit document title'}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText>
             {isNewDocument

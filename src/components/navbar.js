@@ -3,7 +3,6 @@ import LogoutButton from './logoutButton';
 import { Link } from 'react-router-dom';
 import { debounce } from '../utils/debounce';
 import { auth } from '../utils/firebase';
-import { userAuthContext } from '../context/userAuthContext';
 import { getAvatar } from '../utils/avatar';
 import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import '../index.css';
@@ -16,7 +15,11 @@ const Navbar = () => {
 
   const handleScroll = debounce(() => {
     const currentScrollPos = window.pageYOffset;
-    setVisible((prevScrollPos > currentScrollPos && prevScrollPos - currentScrollPos > 70) || currentScrollPos < 10);
+    setVisible(
+      (prevScrollPos > currentScrollPos &&
+        prevScrollPos - currentScrollPos > 70) ||
+        currentScrollPos < 10
+    );
     setPrevScrollPos(currentScrollPos);
   }, 100);
 
@@ -41,7 +44,11 @@ const Navbar = () => {
       className="navbar navbar-expand-lg navbar-light bg-light"
       style={{ ...navbarStyles, top: visible ? '0' : '-60px' }}
     >
-      <Link className="Logo" to={`/`} style={{ textDecoration: 'none', color: '#000042' }}>
+      <Link
+        className="Logo"
+        to={`/`}
+        style={{ textDecoration: 'none', color: '#000042' }}
+      >
         notszli
       </Link>
       {auth.currentUser !== null && (
@@ -49,11 +56,16 @@ const Navbar = () => {
           <div className="user-navbar-container">
             <div
               className="avatar avatar-smol"
-              style={{ backgroundColor: getAvatar(auth.currentUser.displayName).color }}
+              style={{
+                backgroundColor: getAvatar(auth.currentUser.displayName).color,
+              }}
             >
               {getAvatar(auth.currentUser.displayName).letters}
             </div>
-            <div className="sidebar-document-title" style={{ width: 'fit-content', color: '#0f2e53' }}>
+            <div
+              className="sidebar-document-title"
+              style={{ width: 'fit-content', color: '#0f2e53' }}
+            >
               {auth.currentUser.displayName}
             </div>
           </div>

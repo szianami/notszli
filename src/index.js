@@ -1,28 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  createBrowserRouter,
-  RouterProvider,
-  useLocation,
-  useNavigate,
-  useParams,
-} from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 import App from './App';
-import Navbar from './components/navbar';
 import UserAuthContextProvider from './context/userAuthContext';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Register from './components/register';
 import Login from './components/login';
 import Document from './components/document';
-import ProtectedRoute from './components/protectedRoute';
 import reportWebVitals from './reportWebVitals';
 import ErrorPage from './components/errorPage';
-import SignIn from './components/registermui';
 import { withRouter } from './withRouter';
 import DocumentsContextProvider from './context/documentsContext';
 
@@ -66,7 +54,7 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: '/signup',
+    path: '/register',
     element: <Register />,
   },
 ]);
@@ -81,25 +69,6 @@ root.render(
     </UserAuthContextProvider>
   </ThemeProvider>
 );
-
-/*
-<BrowserRouter>
-<Routes>
-  <Route
-    path="/"
-    // errorElement = { <ErrorPage /> }
-    element={
-      //<ProtectedRoute>
-      <App />
-      //</ProtectedRoute>
-    }
-  />
-  <Route path="documents/:documentId" element={<App />} />
-  <Route path="/login" element={<Login />} />
-  <Route path="/signup" element={<Register />} />
-</Routes>
-</BrowserRouter>
-*/
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

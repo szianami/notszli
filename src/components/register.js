@@ -1,6 +1,8 @@
 import * as React from 'react';
+
 import { userAuthContext } from '../context/userAuthContext';
 import validator from 'validator';
+
 import { Snackbar, Alert } from '@mui/material';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -11,9 +13,9 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { Navigate } from 'react-router-dom';
 
-const theme = createTheme();
+import Navbar from './navbar';
 
 class Register extends React.Component {
   constructor(props) {
@@ -71,13 +73,24 @@ class Register extends React.Component {
 
   render() {
     return (
-      <ThemeProvider theme={theme}>
-        <Snackbar open={this.state.isAlertOpen} autoHideDuration={3000} onClose={this.closeAlert}>
-          <Alert onClose={this.closeAlert} severity="error" sx={{ width: '100%' }}>
+      <>
+        <Navbar />
+
+        {this.context.user && <Navigate to="/" replace={true} />}
+
+        <Snackbar
+          open={this.state.isAlertOpen}
+          autoHideDuration={3000}
+          onClose={this.closeAlert}
+        >
+          <Alert
+            onClose={this.closeAlert}
+            severity="error"
+            sx={{ width: '100%' }}
+          >
             {this.state.error}
           </Alert>
         </Snackbar>
-
         <Container component="main" maxWidth="xs">
           <CssBaseline />
           <Box
@@ -97,11 +110,17 @@ class Register extends React.Component {
                 marginTop: '12vh',
                 fontWeight: '700',
                 textAlign: 'center',
+                color: '#00006d',
               }}
             >
               Sign up to Notszli
             </Typography>
-            <Box component="form" onSubmit={this.handleSubmit} noValidate sx={{ mt: 1 }}>
+            <Box
+              component="form"
+              onSubmit={this.handleSubmit}
+              noValidate
+              sx={{ mt: 1 }}
+            >
               <TextField
                 margin="normal"
                 required
@@ -114,7 +133,14 @@ class Register extends React.Component {
                 error={!this.state.isEmailValid}
                 helperText={this.state.helperText}
               />
-              <TextField margin="normal" required fullWidth id="displayName" label="Your name" name="displayName" />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="displayName"
+                label="Your name"
+                name="displayName"
+              />
               <TextField
                 margin="normal"
                 required
@@ -125,7 +151,12 @@ class Register extends React.Component {
                 id="password"
                 autoComplete="current-password"
               />
-              <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
                 Go!
               </Button>
               <Divider
@@ -136,21 +167,29 @@ class Register extends React.Component {
               />
               <Grid container>
                 <Grid item xs={12}>
-                  <Button onClick={this.googleSignIn} fullWidth variant="outlined" sx={{ mt: 3, mb: 2 }}>
-                    <img src="https://img.icons8.com/color/30/null/google-logo.png" />
+                  <Button
+                    onClick={this.googleSignIn}
+                    fullWidth
+                    variant="outlined"
+                    sx={{ mt: 3, mb: 2 }}
+                  >
+                    <img
+                      src="https://img.icons8.com/color/30/null/google-logo.png"
+                      alt="google logo"
+                    />
                     Continue with Google
                   </Button>
                 </Grid>
-                <Grid item>
-                  <Link href="#" variant="body2">
-                    {"Don't have an account? Sign Up"}
+                <Grid item sx={{ marginLeft: 'auto', marginRight: 'auto' }}>
+                  <Link href="/login" variant="body2">
+                    {'Already have an account? Log in'}
                   </Link>
                 </Grid>
               </Grid>
             </Box>
           </Box>
         </Container>
-      </ThemeProvider>
+      </>
     );
   }
 }

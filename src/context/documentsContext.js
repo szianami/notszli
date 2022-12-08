@@ -1,6 +1,16 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext } from 'react';
 import { db } from '../utils/firebase';
-import { query, collection, where, onSnapshot, doc, updateDoc, getDoc } from 'firebase/firestore';
+import {
+  query,
+  collection,
+  where,
+  onSnapshot,
+  doc,
+  updateDoc,
+  getDoc,
+  writeBatch,
+  serverTimestamp,
+} from 'firebase/firestore';
 import { userAuthContext } from './userAuthContext';
 
 export const documentsContext = createContext({ documents: '' });
@@ -8,18 +18,19 @@ export const documentsContext = createContext({ documents: '' });
 class DocumentsContextProvider extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { documents: null, sidebarDocuments: null, activeDocument: null };
+    this.state = { documents: null, sidebarDocuments: null };
     this.isDocumentVisibleForUser = this.isDocumentVisibleForUser.bind(this);
     this.isItMyDocument = this.isItMyDocument.bind(this);
+    this.addNewDocument = this.addNewDocument.bind(this);
+
+    this.isNewDocumentAdded = false;
   }
 
   componentDidMount() {
-    // console.log(this.props.router.params.documentId);
     this.getDocuments();
   }
 
-  componentDidUpdate() {
-    //  console.log(this.state.documents[this.props.router.params.documentId]);
+  componentDidUpdate(prevProps, prevState) {
     this.getDocuments();
   }
 
@@ -34,6 +45,52 @@ class DocumentsContextProvider extends React.Component {
 
     return !!this.state.documents[documentId];
     // de úgy is meg lehetne nézni, hogy lefetchelem a dokumentumot és összevetem az authort
+  }
+
+  async addNewDocument(title) {
+    this.isNewDocumentAdded = true;
+
+    const batch = writeBatch(db);
+
+    const docuRef = doc(collection(db, 'documents'));
+    const blockRef = doc(collection(db, 'blocks'));
+
+    const document = {
+      title: title,
+      authorId: this.context.user.uid,
+      timestamp: serverTimestamp(),
+      reactionCount: {
+        likes: 0,
+        comments: 0,
+      },
+      sortedBlockIds: [blockRef.id],
+      visibility: 'private',
+    };
+
+    const block = {
+      documentId: docuRef.id,
+      text: '',
+      className: 'p',
+    };
+
+    batch.set(docuRef, document);
+    batch.set(blockRef, block);
+
+    const documents = Array.from(this.state.documents);
+
+    documents[docuRef.id] = { document, id: docuRef.id };
+
+    const sidebarDocuments = documents;
+
+    sidebarDocuments.sort((a, b) => {
+      const timestampOfA = a.timestamp;
+      const timestampOfB = b.timestamp;
+      return timestampOfA - timestampOfB;
+    });
+
+    this.setState({ documents, sidebarDocuments });
+
+    await batch.commit();
   }
 
   async getDocument(documentId) {
@@ -55,7 +112,10 @@ class DocumentsContextProvider extends React.Component {
 
     if (this.unsubscribe) this.unsubscribe();
 
-    const q = query(collection(db, 'documents'), where('authorId', '==', this.context.user.uid)); // TODO add limit
+    const q = query(
+      collection(db, 'documents'),
+      where('authorId', '==', this.context.user.uid)
+    );
     this.unsubscribe = onSnapshot(q, (querySnapshot) => {
       //console.log(querySnapshot.docs);
       let documents = {};
@@ -75,11 +135,6 @@ class DocumentsContextProvider extends React.Component {
 
       this.setState({ documents, sidebarDocuments });
     });
-  }
-
-  // nagyon óvatosan ezzel még, nincs kész
-  setActiveDocument(documentId) {
-    this.setState({ activeDocument: documentId });
   }
 
   // TODO: itt kell await?
@@ -114,6 +169,7 @@ class DocumentsContextProvider extends React.Component {
           isDocumentVisibleForUser: this.isDocumentVisibleForUser,
           isItMyDocument: this.isItMyDocument,
           getDocument: this.getDocument,
+          addNewDocument: this.addNewDocument,
         }}
       >
         {this.props.children}

@@ -1,21 +1,30 @@
 import React from 'react';
 import '../index.css';
 import { Link } from 'react-router-dom';
-import PlusIcon from '../images/icons8-plus-20.png';
 import { debounce } from '../utils/debounce';
+
 import EditSelectorMenu from './editSelectorMenu.js';
-import { userAuthContext } from '../context/userAuthContext';
-import { setDoc, addDoc, deleteDoc, doc, writeBatch, query, collection, where, getDocs } from 'firebase/firestore';
-import { db } from '../utils/firebase';
-import stc from 'string-to-color';
-import { auth } from '../utils/firebase';
 import AddNewDocument from './addNewDocument';
+
+import {
+  deleteDoc,
+  doc,
+  query,
+  collection,
+  where,
+  getDocs,
+} from 'firebase/firestore';
+import { db } from '../utils/firebase';
+
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import AddIcon from '@mui/icons-material/Add';
 import DescriptionIcon from '@mui/icons-material/Description';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+
 import { documentsContext } from '../context/documentsContext';
 
+/*
+
+kikommenteztem a scroll-os dolgokat, hogy vajon ez okozza-e az állandó újrarenderelést -> nem
+*/
 class Sidebar extends React.Component {
   constructor(props) {
     super(props);
@@ -34,7 +43,8 @@ class Sidebar extends React.Component {
     const currentScrollPos = window.pageYOffset;
     this.setState({
       visible:
-        (this.state.prevScrollPos > currentScrollPos && this.state.prevScrollPos - currentScrollPos > 70) ||
+        (this.state.prevScrollPos > currentScrollPos &&
+          this.state.prevScrollPos - currentScrollPos > 70) ||
         currentScrollPos < 10,
     });
     this.setState({ prevScrollPos: currentScrollPos });
@@ -67,9 +77,6 @@ class Sidebar extends React.Component {
       });
 
       if (this.unsubscribe) this.unsubscribe();
-
-      // redirect ehelyett a /-re
-      this.props.setActiveDocumentId(null);
 
       /*
       // dokumentumhoz tartozó blokkok queryzése
@@ -120,6 +127,10 @@ class Sidebar extends React.Component {
 
     // felugró ablak: are you sure you want to delete this document?
     console.log('delete finished');
+
+    // redirect ehelyett a /-re
+    this.props.router.navigate('/');
+    //this.props.setActiveDocumentId(null);
   };
 
   renameDocument(document) {
@@ -178,11 +189,6 @@ class Sidebar extends React.Component {
     document.removeEventListener('click', this.closeClassSelectorMenu);
   }
 
-  setAsActiveDocument(id) {
-    this.props.setActiveDocumentId(id);
-    // TODO: change url
-  }
-
   getDisplayNameLetters(name) {
     if (!name) return;
     return name
@@ -212,7 +218,10 @@ class Sidebar extends React.Component {
         <div>
           {this.state.isMenuOpen && (
             <EditSelectorMenu
-              position={{ x: this.state.menuPosition.x, y: this.state.menuPosition.y }}
+              position={{
+                x: this.state.menuPosition.x,
+                y: this.state.menuPosition.y,
+              }}
               onSelect={this.handleClassSelection}
             />
           )}
@@ -221,8 +230,16 @@ class Sidebar extends React.Component {
             this.context.sidebarDocuments.map((doc) => {
               return (
                 <div key={doc.id}>
-                  <Link className="sidebar-document" to={`documents/${doc.id}`} style={{ textDecoration: 'none' }}>
-                    <DescriptionIcon color="primary" fontSize="small" sx={{ mr: 0.5 }} />
+                  <Link
+                    className="sidebar-document"
+                    to={`documents/${doc.id}`}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <DescriptionIcon
+                      color="primary"
+                      fontSize="small"
+                      sx={{ mr: 0.5 }}
+                    />
                     <div className="sidebar-document-title">{doc.title}</div>
                     <div>
                       <MoreHorizIcon
