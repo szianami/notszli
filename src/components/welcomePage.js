@@ -11,7 +11,6 @@ export default class WelcomePage extends React.Component {
         <div
           style={{
             marginTop: '3rem',
-            display: 'flex',
             marginLeft: 'auto',
             marginRight: 'auto',
             display: 'flex',

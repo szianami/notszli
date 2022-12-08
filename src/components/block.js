@@ -31,7 +31,6 @@ class Block extends React.Component {
     this.openClassSelectorMenu = this.openClassSelectorMenu.bind(this);
     this.closeClassSelectorMenu = this.closeClassSelectorMenu.bind(this);
     this.handleClassSelection = this.handleClassSelection.bind(this);
-    this.handleTextSelection = this.handleTextSelection.bind(this);
     this.handleMouseOver = this.handleMouseOver.bind(this);
     this.handleMouseOut = this.handleMouseOut.bind(this);
 

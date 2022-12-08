@@ -78,32 +78,6 @@ class Sidebar extends React.Component {
 
       if (this.unsubscribe) this.unsubscribe();
 
-      /*
-      // dokumentumhoz tartozó blokkok queryzése
-      const blocksInDocument = query(
-        collection(db, 'blocks'),
-        where('documentId', '==', this.state.selectedDocument.id)
-      );
-      */
-
-      // TODO: mieza this.unsubscribe?! -- másképp csináltam
-      /*
-      this.unsubscribe = onSnapshot(blocksInDocument, (querySnapshot) => {
-        console.log(querySnapshot.docs);
-        querySnapshot.forEach((doc) => {
-          // console.log(doc.id, ' => ', doc.data());
-          deleteDoc(doc(db, 'blocks', doc.id));
-        });
-      });
-      */
-      /*
-      const blockQuerySnapshot = await getDocs(blocksInDocument);
-      blockQuerySnapshot.forEach((doc) => {
-        console.log(doc.id, ' => ', doc.data());
-        deleteDoc(doc(db, 'blocks', doc.id));
-      });
-    */
-
       const reactionsInDocument = query(
         collection(db, 'reactions'),
         where('documentId', '==', this.state.selectedDocument.id)
