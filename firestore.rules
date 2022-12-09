@@ -1,12 +1,39 @@
 rules_version = '2';
 service cloud.firestore {
     match /databases/{database}/documents {
-      // Make sure the uid of the requesting user matches name of the user
-      // document. The wildcard expression {userId} makes the userId variable
-      // available in rules.
-      match /documents/{docId} {
-        allow read, update, delete: if request.auth != null && request.auth.uid == resource.data.authorId;
-        allow create: if request.auth != null;
+    
+    	function getNote(source) {
+         return get(/databases/$(database)/documents/documents/$(source.data.documentId)).data;
       }
-    }
+
+      match /documents/{id} {
+      	allow read: if request.auth != null 
+        &&(resource.data.visibility == 'public' || request.auth.uid == resource.data.authorId);
+        allow read, update, delete: if request.auth != null 
+        && request.auth.uid == resource.data.authorId;
+        allow create: if request.auth != null && request.auth.uid == request.resource.data.authorId;
+      }
+    
+      match /blocks/{id} {
+				allow read: if request.auth != null && (getNote(resource).authorId == request.auth.uid ||
+        		getNote(resource).visibility == 'public');
+        allow create: if request.auth != null && getNote(request.resource).authorId == request.auth.uid;
+        allow update, delete: if request.auth != null && getNote(resource).authorId == request.auth.uid;
+      }
+      
+      match /reactions/{id} {
+        allow read: if request.auth != null && (getNote(resource).authorId == request.auth.uid ||
+        	getNote(resource).visibility == 'public');
+        allow create: if request.auth != null && (getNote(request.resource).authorId == request.auth.uid
+        || getNote(resource).visibility == 'public');
+        allow update, delete: if request.auth != null && getNote(resource).authorId == request.auth.uid;
+      }
+      
+      match /users/{uid} {
+      	allow list: if false;
+      	allow get: if request.auth != null;
+      	allow create: if request.auth != null && request.auth.uid == request.resource.id;
+      	allow update, delete: if request.auth != null && request.auth.uid == uid;
+      }
   }
+}

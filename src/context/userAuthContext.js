@@ -41,20 +41,17 @@ class UserAuthContextProvider extends React.Component {
 
   async signUp(email, password, displayName) {
     try {
-      const user = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      ).then(async (res) => {
-        updateProfile(res.user, {
-          displayName: displayName,
-        });
-        await this.addUserToFirestore(res.user.uid, {
-          email: email,
-          displayName: displayName,
-        });
-      });
-      this.setState({ user: user });
+      await createUserWithEmailAndPassword(auth, email, password).then(
+        async (res) => {
+          updateProfile(res.user, {
+            displayName: displayName,
+          });
+          await this.addUserToFirestore(res.user.uid, {
+            email: email,
+            displayName: displayName,
+          });
+        }
+      );
     } catch (error) {
       console.log(error.code, ' - Problems with signup');
       console.log(error.message);

@@ -188,6 +188,7 @@ class Reactions extends React.Component {
       console.log('comment author - ', docSnap.data());
       return docSnap.data();
     } else {
+      return null;
     }
   }
 
