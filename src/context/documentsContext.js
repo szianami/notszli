@@ -7,6 +7,7 @@ import {
   onSnapshot,
   doc,
   updateDoc,
+  setDoc,
   getDoc,
   writeBatch,
   serverTimestamp,
@@ -63,7 +64,7 @@ class DocumentsContextProvider extends React.Component {
         likes: 0,
         comments: 0,
       },
-      sortedBlockIds: [blockRef.id],
+      sortedBlockIds: [], // [blockRef.id],
       visibility: 'private',
     };
 
@@ -73,7 +74,11 @@ class DocumentsContextProvider extends React.Component {
       className: 'p',
     };
 
-    batch.set(docuRef, document);
+    await setDoc(docuRef, document);
+
+    const newDocuRef = doc(db, 'documents', docuRef.id);
+
+    batch.set(newDocuRef, { sortedBlockIds: [blockRef.id] }, { merge: true });
     batch.set(blockRef, block);
 
     const documents = Array.from(this.state.documents);
