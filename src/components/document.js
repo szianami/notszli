@@ -2,7 +2,6 @@ import React from "react";
 import "../index.css";
 
 import isEqual from "lodash/isEqual";
-import { setCaretToEnd } from "../utils/caretPositionManipulation";
 
 import Block from "./block";
 import Reactions from "./reactions";
@@ -16,7 +15,7 @@ import {
   updateDoc,
   doc,
   setDoc,
-  deleteDoc
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "../utils/firebase";
 
@@ -55,9 +54,8 @@ class Document extends React.Component {
     if (!this.context.documents) return;
 
     // gets document from context by ID coming from router params
-    const document = this.context.documents[
-      this.props.router.params.documentId
-    ];
+    const document =
+      this.context.documents[this.props.router.params.documentId];
 
     if (!document) return;
 
@@ -98,7 +96,7 @@ class Document extends React.Component {
 
     console.log(
       "aaa",
-      JSON.stringify(blocks.map(b => b.id)),
+      JSON.stringify(blocks.map((b) => b.id)),
       document.sortedBlockIds
     );
 
@@ -110,7 +108,7 @@ class Document extends React.Component {
         return indexOfA - indexOfB;
       });
     }
-    console.log("bbb", JSON.stringify(blocks.map(b => b.id)));
+    console.log("bbb", JSON.stringify(blocks.map((b) => b.id)));
     this.setState({ blocks });
   }
 
@@ -124,19 +122,19 @@ class Document extends React.Component {
       collection(db, "blocks"),
       where("documentId", "==", document.id)
     );
-    this.unsubscribe = onSnapshot(q, querySnapshot => {
-      const blocks = querySnapshot.docs.map(doc => ({
+    this.unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const blocks = querySnapshot.docs.map((doc) => ({
         ...doc.data(),
-        id: doc.id
+        id: doc.id,
       }));
       this.setSortedBlocks(blocks);
     });
   }
 
   updateDocument(changedBlock) {
-    this.setState(prev => {
+    this.setState((prev) => {
       const blocks = prev.blocks;
-      const index = blocks.findIndex(block => block.id === changedBlock.id);
+      const index = blocks.findIndex((block) => block.id === changedBlock.id);
       const changedBlocks = [...blocks];
       changedBlocks[index] = { ...changedBlock };
       return { blocks: changedBlocks };
@@ -147,7 +145,7 @@ class Document extends React.Component {
     let index =
       blockBefore === null
         ? 0
-        : this.state.blocks.findIndex(block => block.id === blockBefore.id);
+        : this.state.blocks.findIndex((block) => block.id === blockBefore.id);
 
     if (index < 0) index = 0;
 
@@ -157,7 +155,7 @@ class Document extends React.Component {
     const blockData = {
       documentId: document.id,
       text: "",
-      className: "p"
+      className: "p",
     };
 
     const blocksRef = collection(db, "blocks"); // collectionRef
@@ -185,7 +183,7 @@ class Document extends React.Component {
 
     await Promise.all([
       this.updateSortedBlocks(blocksWithNewBlock),
-      this.insertNewBlockToDb(blockRef, blockData)
+      this.insertNewBlockToDb(blockRef, blockData),
     ]);
   }
 
@@ -197,21 +195,21 @@ class Document extends React.Component {
       .then(() => {
         console.log("created new block");
       })
-      .catch(error => {
+      .catch((error) => {
         console.log("Error creating document:", error);
       });
   }
 
   // a paraméterként kapott blokkok sorrendje alapján a db-ben frissíti a sorrendben tárolt blokkid-k tömbjét
   async updateSortedBlocks(changedBlocks) {
-    const sortedBlockIds = changedBlocks.map(block => block.id);
+    const sortedBlockIds = changedBlocks.map((block) => block.id);
 
     const document = this.getDocument();
     if (!document) return;
 
     await updateDoc(doc(db, "documents", document.id), {
-      sortedBlockIds: sortedBlockIds
-    }).catch(error => {
+      sortedBlockIds: sortedBlockIds,
+    }).catch((error) => {
       console.log("Error updating document:", error);
     });
   }
@@ -220,7 +218,7 @@ class Document extends React.Component {
     if (this.state.blocks.length > 1) {
       const blocks = this.state.blocks;
       const index = this.state.blocks.findIndex(
-        block => block.id === blockToRemove.id
+        (block) => block.id === blockToRemove.id
       );
       const changedBlocks = [...blocks];
       changedBlocks.splice(index, 1);
@@ -242,18 +240,18 @@ class Document extends React.Component {
       doc(db, "blocks", blockToSave.id),
       !!blockToSave.content
         ? {
-            text: blockToSave.content
+            text: blockToSave.content,
           }
         : {
-            className: blockToSave.className
+            className: blockToSave.className,
           }
     )
-      .then(updateResult => {
+      .then((updateResult) => {
         console.log("successfully updated!");
         console.log(updateResult);
         // this.setState({ ... }); ??
       })
-      .catch(error => {
+      .catch((error) => {
         console.log("Error updating document:", error);
       });
   }
@@ -299,12 +297,12 @@ class Document extends React.Component {
 
         <DragDropContext onDragEnd={this.onDragEnd}>
           <Droppable droppableId={"document"}>
-            {provided => (
+            {(provided) => (
               <div>
                 <div ref={provided.innerRef} {...provided.droppableProps}>
                   {this.state.blocks.map((block, index) => {
                     const position = this.state.blocks
-                      .map(b => b.id)
+                      .map((b) => b.id)
                       .indexOf(block.id);
                     return (
                       <Block

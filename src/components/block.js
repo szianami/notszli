@@ -4,7 +4,7 @@ import ClassSelectorMenu from "./classSelectorMenu";
 import { Draggable } from "react-beautiful-dnd";
 import {
   setCaretToEnd,
-  getCaretCoordinates
+  getCaretCoordinates,
 } from "../utils/caretPositionManipulation";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import AddIcon from "@mui/icons-material/Add";
@@ -39,15 +39,15 @@ class Block extends React.Component {
       isMenuOpen: false,
       menuPosition: {
         x: null,
-        y: null
-      }
+        y: null,
+      },
     };
   }
 
   componentDidMount() {
     this.setState({
       content: this.props.content,
-      className: this.props.className
+      className: this.props.className,
     });
   }
 
@@ -63,13 +63,13 @@ class Block extends React.Component {
       this.props.updateDocument({
         id: this.props.id,
         className: this.state.className,
-        content: this.state.content
+        content: this.state.content,
         // TODO: timestamp
       });
     }
   }
 
-  handleChange = event => {
+  handleChange = (event) => {
     this.setState({ content: event.target.value });
   };
 
@@ -81,7 +81,7 @@ class Block extends React.Component {
     } else this.setState({ title: event.target.value });
   }
 
-  handleKeyDown = event => {
+  handleKeyDown = (event) => {
     switch (event.key) {
       case "Enter":
         // usecases:
@@ -91,7 +91,7 @@ class Block extends React.Component {
           event.preventDefault();
           this.props.insertNewBlock({
             id: this.props.id,
-            ref: this.contentEditable.current
+            ref: this.contentEditable.current,
           });
         }
         break;
@@ -103,7 +103,7 @@ class Block extends React.Component {
           event.preventDefault();
           this.props.removeBlock({
             id: this.props.id,
-            ref: this.contentEditable.current
+            ref: this.contentEditable.current,
           });
         }
         break;
@@ -111,6 +111,7 @@ class Block extends React.Component {
         console.log("heloooo arrow up", event);
         console.log(event.target);
         console.log(this.contentEditable);
+        break;
       default:
         // keys to ignore:
         // Ctrl, Alt, Shift ... -> control keys
@@ -126,7 +127,7 @@ class Block extends React.Component {
           this.setState({
             typingTimeout: setTimeout(() => {
               this.saveBlockToDB(this.state.content, undefined);
-            }, 3000)
+            }, 3000),
           });
         }
         break;
@@ -134,7 +135,7 @@ class Block extends React.Component {
     this.setState({ prevKey: event.key });
   };
 
-  handleKeyUp = event => {
+  handleKeyUp = (event) => {
     if (event.key === "/") {
       this.openClassSelectorMenu();
     }
@@ -154,7 +155,7 @@ class Block extends React.Component {
       this.setState({
         isMenuOpen: true,
         menuPosition: { x, y },
-        prevContent: this.state.content
+        prevContent: this.state.content,
       });
     } else {
       // ezzel megállítom az erre az eventre feliratkozóknak a továbbdobást, mert én ezt már lekezeltem!
@@ -163,7 +164,7 @@ class Block extends React.Component {
       this.setState({
         isMenuOpen: true,
         menuPosition: { x: event.clientX, y: event.clientY },
-        prevContent: this.state.content
+        prevContent: this.state.content,
       });
     }
     setTimeout(() => {
@@ -177,7 +178,7 @@ class Block extends React.Component {
   closeClassSelectorMenu() {
     this.setState({
       htmlBackup: "",
-      isMenuOpen: false
+      isMenuOpen: false,
       // menuPosition: { x: null, y: null },
     });
     document.removeEventListener("click", this.closeClassSelectorMenu);
@@ -188,7 +189,7 @@ class Block extends React.Component {
       {
         prevClass: this.state.className,
         className: className,
-        content: this.state.prevContent.replace("/", "")
+        content: this.state.prevContent.replace("/", ""),
       },
       () => {
         setCaretToEnd(this.contentEditable.current);
@@ -204,7 +205,7 @@ class Block extends React.Component {
     this.props.saveBlock({
       id: this.props.id,
       className: className ? className : undefined,
-      content: content ? content : undefined
+      content: content ? content : undefined,
     });
   }
 
@@ -256,7 +257,7 @@ class Block extends React.Component {
                         sx={{
                           color: "#c3c3c3",
                           size: "small",
-                          maxWidth: "21px"
+                          maxWidth: "21px",
                         }}
                       />
                     </span>
@@ -269,7 +270,7 @@ class Block extends React.Component {
                         sx={{
                           color: "#c3c3c3",
                           size: "small",
-                          maxWidth: "21px"
+                          maxWidth: "21px",
                         }}
                       />
                     </span>
