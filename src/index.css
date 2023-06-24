@@ -12,24 +12,21 @@ body {
 .main {
   margin-left: 300px;
   margin-top: 60px;
-  width: -webkit-fill-available;
+  flex: auto;
 }
 
 .document-container {
 
-  padding-left: calc(96px + env(safe-area-inset-left));
-  padding-right: calc(96px + env(safe-area-inset-left));
+  padding-left: calc(24px + env(safe-area-inset-left));
+  padding-right: calc(24px + env(safe-area-inset-left));
   width: 100%;
   max-width: 970px;
   margin-left: auto;
   margin-right: auto;
-/*  margin-left: auto;
-  margin-right: auto;
-   */
 }
 .Logo {
+  flex: auto;
   margin-left: 2rem;
-  width: 100%;
   color: #0f2e53;
   font-family: 'ABeeZee', sans-serif;
   font-size: 1.8rem;

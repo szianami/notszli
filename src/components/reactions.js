@@ -251,7 +251,7 @@ class Reactions extends React.Component {
                 <Tooltip title="Copy document URL to clipboard">
                   <Fab
                     onClick={() => {
-                      this.openAlert();
+                      this.openCopyAlert();
                       navigator.clipboard.writeText(this.props.route);
                     }}
                     size="small"

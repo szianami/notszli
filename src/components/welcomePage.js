@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Grid from '@mui/material/Grid';
 import welcomeImg from '../images/welcome_computer_torso.png';
 import documentExample from '../images/example.png';
 import teamDiscussionImg from '../images/team_discussion.png';
@@ -17,73 +18,66 @@ export default class WelcomePage extends React.Component {
             flexDirection: 'column',
           }}
         >
-          <div
-            style={{
-              display: 'flex',
-            }}
-          >
-            <div>
+          <Grid container spacing={0}>
+            <Grid item xs={12} sm={6}>
               <img
                 src={welcomeImg}
                 style={{
                   width: '100%',
-                  display: 'flex',
-                  alignContent: 'center',
-                  flexWrap: 'wrap',
                 }}
                 alt="a person sitting in front of a computer"
               />
-            </div>
-            <div
-              style={{
-                paddingTop: '2rem',
-                marginTop: 'auto',
-                marginBottom: 'auto',
-              }}
-            >
-              <span
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <div
                 style={{
-                  fontFamily: 'ABeeZee, sans-serif',
-                  fontSize: '1.8rem',
-                  fontWeight: '700',
-                  color: 'rgb(0 0 66)',
+                  paddingTop: '2rem',
+                  marginTop: 'auto',
+                  marginBottom: 'auto',
                 }}
               >
-                Hey, tired of heavy-weight text editors?
-              </span>
-              <div>
                 <span
                   style={{
-                    color: 'rgb(0 0 66)',
                     fontFamily: 'ABeeZee, sans-serif',
+                    fontSize: '1.8rem',
                     fontWeight: '700',
-                    fontSize: '1.5rem',
-                  }}
-                >
-                  Got you! Say hi to notszli!
-                </span>
-              </div>
-              <div>
-                <p
-                  style={{
-                    paddingTop: '1em',
                     color: 'rgb(0 0 66)',
-                    fontFamily: 'Segoe UI',
-                    fontWeight: '500',
-                    fontSize: '16px',
                   }}
                 >
-                  Notszli is a web-based text editor that makes your writing
-                  flow fun & fast.
-                </p>
+                  Hey, tired of heavy-weight text editors?
+                </span>
+                <div>
+                  <span
+                    style={{
+                      color: 'rgb(0 0 66)',
+                      fontFamily: 'ABeeZee, sans-serif',
+                      fontWeight: '700',
+                      fontSize: '1.5rem',
+                    }}
+                  >
+                    Got you! Say hi to notszli!
+                  </span>
+                </div>
+                <div>
+                  <p
+                    style={{
+                      paddingTop: '1em',
+                      color: 'rgb(0 0 66)',
+                      fontSize: '16px',
+                    }}
+                  >
+                    Notszli is a web-based text editor that makes your writing
+                    flow fun & fast.
+                  </p>
+                </div>
               </div>
-            </div>
-          </div>
+            </Grid>
+          </Grid>
           <div>
             <p
               style={{
-                paddingTop: '1em',
-                paddingLeft: '1em',
+                paddingTop: '1.5em',
+                paddingBottom: '0.3em',
                 color: 'rgb(0 0 66)',
                 fontFamily: 'ABeeZee',
                 fontWeight: '700',
@@ -105,8 +99,8 @@ export default class WelcomePage extends React.Component {
           <div>
             <p
               style={{
-                paddingTop: '1em',
-                paddingLeft: '1em',
+                paddingTop: '1.8em',
+                paddingBottom: '0.5em',
                 color: 'rgb(0 0 66)',
                 fontFamily: 'ABeeZee',
                 fontWeight: '700',
