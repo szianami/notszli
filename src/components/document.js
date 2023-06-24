@@ -1,13 +1,13 @@
-import React from 'react';
-import '../index.css';
+import React from "react";
+import "../index.css";
 
-import isEqual from 'lodash/isEqual';
-import { setCaretToEnd } from '../setCaretToEnd';
+import isEqual from "lodash/isEqual";
+import { setCaretToEnd } from "../utils/caretPositionManipulation";
 
-import Block from './block';
-import Reactions from './reactions';
+import Block from "./block";
+import Reactions from "./reactions";
 
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import {
   query,
   collection,
@@ -16,11 +16,11 @@ import {
   updateDoc,
   doc,
   setDoc,
-  deleteDoc,
-} from 'firebase/firestore';
-import { db } from '../utils/firebase';
+  deleteDoc
+} from "firebase/firestore";
+import { db } from "../utils/firebase";
 
-import { documentsContext } from '../context/documentsContext';
+import { documentsContext } from "../context/documentsContext";
 
 class Document extends React.Component {
   constructor(props) {
@@ -97,8 +97,8 @@ class Document extends React.Component {
     if (!document) return;
 
     console.log(
-      'aaa',
-      JSON.stringify(blocks.map((b) => b.id)),
+      "aaa",
+      JSON.stringify(blocks.map(b => b.id)),
       document.sortedBlockIds
     );
 
@@ -110,7 +110,7 @@ class Document extends React.Component {
         return indexOfA - indexOfB;
       });
     }
-    console.log('bbb', JSON.stringify(blocks.map((b) => b.id)));
+    console.log("bbb", JSON.stringify(blocks.map(b => b.id)));
     this.setState({ blocks });
   }
 
@@ -121,22 +121,22 @@ class Document extends React.Component {
     if (this.unsubscribe) this.unsubscribe();
 
     const q = query(
-      collection(db, 'blocks'),
-      where('documentId', '==', document.id)
+      collection(db, "blocks"),
+      where("documentId", "==", document.id)
     );
-    this.unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const blocks = querySnapshot.docs.map((doc) => ({
+    this.unsubscribe = onSnapshot(q, querySnapshot => {
+      const blocks = querySnapshot.docs.map(doc => ({
         ...doc.data(),
-        id: doc.id,
+        id: doc.id
       }));
       this.setSortedBlocks(blocks);
     });
   }
 
   updateDocument(changedBlock) {
-    this.setState((prev) => {
+    this.setState(prev => {
       const blocks = prev.blocks;
-      const index = blocks.findIndex((block) => block.id === changedBlock.id);
+      const index = blocks.findIndex(block => block.id === changedBlock.id);
       const changedBlocks = [...blocks];
       changedBlocks[index] = { ...changedBlock };
       return { blocks: changedBlocks };
@@ -147,7 +147,7 @@ class Document extends React.Component {
     let index =
       blockBefore === null
         ? 0
-        : this.state.blocks.findIndex((block) => block.id === blockBefore.id);
+        : this.state.blocks.findIndex(block => block.id === blockBefore.id);
 
     if (index < 0) index = 0;
 
@@ -156,22 +156,22 @@ class Document extends React.Component {
 
     const blockData = {
       documentId: document.id,
-      text: '',
-      className: 'p',
+      text: "",
+      className: "p"
     };
 
-    const blocksRef = collection(db, 'blocks'); // collectionRef
+    const blocksRef = collection(db, "blocks"); // collectionRef
     const blockRef = doc(blocksRef); // docRef
     const blockId = blockRef.id; // a docRef has an id property
-    console.log('a blokk idja: ', blockId);
+    console.log("a blokk idja: ", blockId);
 
     const block = { ...blockData, id: blockId };
     // ezen a ponton a blocksWithNewBlock szerintem helyes sorrendben tartalmazza az id-kat
     const blocksWithNewBlock = [...this.state.blocks];
     blocksWithNewBlock.splice(index + 1, 0, block);
-    console.log('blockswithnewblock -', blocksWithNewBlock);
+    console.log("blockswithnewblock -", blocksWithNewBlock);
 
-    console.log('!!!!', document.sortedBlockIds);
+    console.log("!!!!", document.sortedBlockIds);
 
     let newBlockIds;
     if (blocksWithNewBlock.length === 1) {
@@ -185,7 +185,7 @@ class Document extends React.Component {
 
     await Promise.all([
       this.updateSortedBlocks(blocksWithNewBlock),
-      this.insertNewBlockToDb(blockRef, blockData),
+      this.insertNewBlockToDb(blockRef, blockData)
     ]);
   }
 
@@ -195,24 +195,24 @@ class Document extends React.Component {
 
     await setDoc(blockRef, blockData)
       .then(() => {
-        console.log('created new block');
+        console.log("created new block");
       })
-      .catch((error) => {
-        console.log('Error creating document:', error);
+      .catch(error => {
+        console.log("Error creating document:", error);
       });
   }
 
   // a paraméterként kapott blokkok sorrendje alapján a db-ben frissíti a sorrendben tárolt blokkid-k tömbjét
   async updateSortedBlocks(changedBlocks) {
-    const sortedBlockIds = changedBlocks.map((block) => block.id);
+    const sortedBlockIds = changedBlocks.map(block => block.id);
 
     const document = this.getDocument();
     if (!document) return;
 
-    await updateDoc(doc(db, 'documents', document.id), {
-      sortedBlockIds: sortedBlockIds,
-    }).catch((error) => {
-      console.log('Error updating document:', error);
+    await updateDoc(doc(db, "documents", document.id), {
+      sortedBlockIds: sortedBlockIds
+    }).catch(error => {
+      console.log("Error updating document:", error);
     });
   }
 
@@ -220,39 +220,41 @@ class Document extends React.Component {
     if (this.state.blocks.length > 1) {
       const blocks = this.state.blocks;
       const index = this.state.blocks.findIndex(
-        (block) => block.id === blockToRemove.id
+        block => block.id === blockToRemove.id
       );
       const changedBlocks = [...blocks];
       changedBlocks.splice(index, 1);
-      const previousBlock = blockToRemove.ref.previousElementSibling;
+      const previousBlock = blockToRemove;
+      console.log("+++ previousBlock", previousBlock);
       this.setState({ blocks: changedBlocks }, () => {
         /// TODO: setCaretToEnd: a legutolsó karakterre állítja a kurzort
-        setCaretToEnd(previousBlock);
+        // setCaretToEnd(previousBlock);
+        // previousBlock.focus();
       });
-      previousBlock.focus();
-      deleteDoc(doc(db, 'blocks', blockToRemove.id));
+      //previousBlock.focus();
+      deleteDoc(doc(db, "blocks", blockToRemove.id));
       this.updateSortedBlocks(changedBlocks);
     }
   }
 
   async saveBlock(blockToSave) {
     updateDoc(
-      doc(db, 'blocks', blockToSave.id),
+      doc(db, "blocks", blockToSave.id),
       !!blockToSave.content
         ? {
-            text: blockToSave.content,
+            text: blockToSave.content
           }
         : {
-            className: blockToSave.className,
+            className: blockToSave.className
           }
     )
-      .then((updateResult) => {
-        console.log('successfully updated!');
+      .then(updateResult => {
+        console.log("successfully updated!");
         console.log(updateResult);
         // this.setState({ ... }); ??
       })
-      .catch((error) => {
-        console.log('Error updating document:', error);
+      .catch(error => {
+        console.log("Error updating document:", error);
       });
   }
 
@@ -282,42 +284,45 @@ class Document extends React.Component {
       <>
         {!!this.getDocument() && (
           <p className="Intro">
-            Hi there!{' '}
+            Hi there!{" "}
             <span role="img" aria-label="greetings" className="Emoji">
               👋
-            </span>{' '}
+            </span>{" "}
             You can add content below. Type <span className="Code">/</span> for
             commands!
           </p>
         )}
+
+        <div className="Block h1">
+          {this.getDocument() ? this.getDocument().title : ""}
+        </div>
+
         <DragDropContext onDragEnd={this.onDragEnd}>
-          <Droppable droppableId={'document'}>
-            {(provided) => (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
-                <div className="Block h1">
-                  {this.getDocument() ? this.getDocument().title : ''}
+          <Droppable droppableId={"document"}>
+            {provided => (
+              <div>
+                <div ref={provided.innerRef} {...provided.droppableProps}>
+                  {this.state.blocks.map((block, index) => {
+                    const position = this.state.blocks
+                      .map(b => b.id)
+                      .indexOf(block.id);
+                    return (
+                      <Block
+                        index={index}
+                        key={block.id}
+                        id={block.id}
+                        position={position}
+                        className={block.className}
+                        content={block.text}
+                        updateDocument={this.updateDocument}
+                        insertNewBlock={this.insertNewBlock}
+                        removeBlock={this.removeBlock}
+                        saveBlock={this.saveBlock}
+                      />
+                    );
+                  })}
+                  {provided.placeholder}
                 </div>
-                {this.state.blocks.map((block, index) => {
-                  //console.log(this.state.blocks);
-                  const position = this.state.blocks
-                    .map((b) => b.id)
-                    .indexOf(block.id);
-                  return (
-                    <Block
-                      index={index}
-                      key={block.id}
-                      id={block.id}
-                      position={position}
-                      className={block.className}
-                      content={block.text}
-                      updateDocument={this.updateDocument}
-                      insertNewBlock={this.insertNewBlock}
-                      removeBlock={this.removeBlock}
-                      saveBlock={this.saveBlock}
-                    />
-                  );
-                })}
-                {provided.placeholder}
               </div>
             )}
           </Droppable>
