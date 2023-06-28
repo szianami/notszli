@@ -1,11 +1,8 @@
-import React from 'react';
-import '../index.css';
-import { Link } from 'react-router-dom';
-import { debounce } from '../utils/debounce';
-
-import EditSelectorMenu from './editSelectorMenu.js';
-import AddNewDocument from './addNewDocument';
-
+import React from "react";
+import "../index.css";
+import { Link } from "react-router-dom";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import DescriptionIcon from "@mui/icons-material/Description";
 import {
   deleteDoc,
   doc,
@@ -13,13 +10,13 @@ import {
   collection,
   where,
   getDocs,
-} from 'firebase/firestore';
-import { db } from '../utils/firebase';
-
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import DescriptionIcon from '@mui/icons-material/Description';
-
-import { documentsContext } from '../context/documentsContext';
+} from "firebase/firestore";
+import { db } from "../utils/firebase";
+import { debounce } from "../utils/debounce";
+import EditSelectorMenu from "./editSelectorMenu.js";
+import AddNewDocument from "./addNewDocument";
+import LogoText from "./logoText";
+import { documentsContext } from "../context/documentsContext";
 
 /*
 
@@ -51,17 +48,17 @@ class Sidebar extends React.Component {
   }, 100);
 
   componentDidMount() {
-    window.addEventListener('scroll', this.handleScroll);
-    console.log('router - ', this.props.router);
+    window.addEventListener("scroll", this.handleScroll);
+    console.log("router - ", this.props.router);
     console.log(this.context.sidebarDocuments);
   }
 
   componentDidUpdate() {
-    console.log('router - ', this.props.router);
+    console.log("router - ", this.props.router);
     console.log(this.context.sidebarDocuments);
   }
   componentWillUnmount() {
-    window.removeEventListener('scroll', this.handleScroll);
+    window.removeEventListener("scroll", this.handleScroll);
   }
 
   postDocument() {}
@@ -72,43 +69,43 @@ class Sidebar extends React.Component {
     if (this.state.selectedDocument) {
       // blokkok letörlése -- sortedBlockIds-zal elég? van olyan blokk, ami ebben nincs benne?
       this.state.selectedDocument.sortedBlockIds.forEach((blockId) => {
-        deleteDoc(doc(db, 'blocks', blockId));
+        deleteDoc(doc(db, "blocks", blockId));
       });
 
       if (this.unsubscribe) this.unsubscribe();
 
       const reactionsInDocument = query(
-        collection(db, 'reactions'),
-        where('documentId', '==', this.state.selectedDocument.id)
+        collection(db, "reactions"),
+        where("documentId", "==", this.state.selectedDocument.id)
       );
 
       const reactionQuerySnapshot = await getDocs(reactionsInDocument);
       reactionQuerySnapshot.forEach((docu) => {
-        console.log(docu.id, ' => ', docu.data());
-        deleteDoc(doc(db, 'reactions', docu.id));
+        console.log(docu.id, " => ", docu.data());
+        deleteDoc(doc(db, "reactions", docu.id));
       });
 
-      deleteDoc(doc(db, 'documents', this.state.selectedDocument.id))
+      deleteDoc(doc(db, "documents", this.state.selectedDocument.id))
         .then(() => {
-          console.log('successfully deleted! ');
+          console.log("successfully deleted! ");
           this.setState({ selectedDocument: null });
         })
         .catch((error) => {
-          console.log('Error removing document:', error);
+          console.log("Error removing document:", error);
         });
     }
 
     // felugró ablak: are you sure you want to delete this document?
-    console.log('delete finished');
+    console.log("delete finished");
 
     // redirect ehelyett a /-re
-    this.props.router.navigate('/');
+    this.props.router.navigate("/");
     //this.props.setActiveDocumentId(null);
   };
 
   renameDocument(document) {
     // megjelenik egy input field / contenteditable a helyén
-    console.log('rename');
+    console.log("rename");
   }
 
   publishDocument(document) {
@@ -119,15 +116,15 @@ class Sidebar extends React.Component {
 
   handleClassSelection(selectedItem) {
     switch (selectedItem) {
-      case 'delete':
+      case "delete":
         console.log(this.state.selectedDocument);
         this.deleteDocument();
         break;
-      case 'rename':
-        console.log('rename');
+      case "rename":
+        console.log("rename");
         break;
-      case 'publish':
-        console.log('publish');
+      case "publish":
+        console.log("publish");
         break;
       default:
         break;
@@ -150,44 +147,34 @@ class Sidebar extends React.Component {
       // menuPosition: { x: x, y: event.clientY },
       menuPosition: { x: 280, y: y },
     });
-    document.addEventListener('click', this.closeClassSelectorMenu);
+    document.addEventListener("click", this.closeClassSelectorMenu);
   }
 
   closeClassSelectorMenu() {
-    console.log('closeClassSelectorMenu');
+    console.log("closeClassSelectorMenu");
     this.setState({
       isMenuOpen: false,
     });
-    document.removeEventListener('click', this.closeClassSelectorMenu);
-    document.removeEventListener('click', this.closeClassSelectorMenu);
+    document.removeEventListener("click", this.closeClassSelectorMenu);
+    document.removeEventListener("click", this.closeClassSelectorMenu);
   }
 
   getDisplayNameLetters(name) {
     if (!name) return;
     return name
-      .split(' ')
+      .split(" ")
       .map((item) => {
         return item[0];
       })
-      .join('');
+      .join("");
   }
 
   render() {
     return (
-      <div
-        className="sidebar"
-        style={{
-          position: 'fixed',
-          width: '300px',
-          transition: 'top 0.6s',
-          display: 'flex',
-          flexWrap: 'inherit',
-          paddingTop: '60px',
-          marginTop: '-60px',
-          top: this.state.visible ? '60px' : '0px',
-          height: '-webkit-fill-available',
-        }}
-      >
+      <div className="sidebar">
+        <div style={{ margin: "1rem 0" }}>
+          <LogoText />
+        </div>
         <div>
           {this.state.isMenuOpen && (
             <EditSelectorMenu
@@ -206,7 +193,7 @@ class Sidebar extends React.Component {
                   <Link
                     className="sidebar-document"
                     to={`documents/${doc.id}`}
-                    style={{ textDecoration: 'none' }}
+                    style={{ textDecoration: "none" }}
                   >
                     <DescriptionIcon
                       color="primary"

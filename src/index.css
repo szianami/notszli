@@ -2,33 +2,31 @@ body {
   display: block;
   margin: 0 auto;
   width: 100%;
-/*  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, 'ABeeZee',
+  /*  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, 'ABeeZee',
     Arial, sans-serif; */
-  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, 
-  "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji",
+    "Segoe UI Symbol";
 }
 
-
 .main {
-  margin-left: 300px;
-  margin-top: 60px;
   flex: auto;
+  overflow-y: scroll;
 }
 
 .document-container {
-
-  padding-left: calc(24px + env(safe-area-inset-left));
-  padding-right: calc(24px + env(safe-area-inset-left));
+  padding-left: calc(48px + env(safe-area-inset-left));
+  padding-right: calc(48px + env(safe-area-inset-left));
   width: 100%;
   max-width: 970px;
   margin-left: auto;
   margin-right: auto;
 }
+
 .Logo {
-  flex: auto;
   margin-left: 2rem;
   color: #0f2e53;
-  font-family: 'ABeeZee', sans-serif;
+  font-family: "ABeeZee", sans-serif;
   font-size: 1.8rem;
   font-weight: 700;
 }
@@ -63,15 +61,12 @@ body {
 }
 
 .sidebar {
+  flex: auto;
   display: flex;
   flex-direction: column;
-  width: 240px;
-  height: 100%;
-  position: fixed;
   z-index: 1;
-  top: 60px;
-  left: 0;
   overflow-x: hidden;
+  overflow-y: scroll;
   background: #f8f9fa;
   transition: box-shadow 300ms ease 0s;
   box-shadow: rgb(0 0 0 / 2%) -1px 0px 0px 0px inset;
@@ -125,9 +120,9 @@ body {
 
 .app-container {
   display: flex;
-  height: calc(100vh - 60px);
-  
+  height: 100vh;
 }
+
 .container-fluid {
   width: 100%;
   padding-right: 15px;
@@ -147,14 +142,14 @@ body {
   margin-right: 2rem;
 }
 .block-container {
-  margin-left: -42px;
+  margin-left: -48px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
 }
 
 .DragSymbol {
-  width: 21px;
+  width: 24px;
   cursor: grab;
 }
 
@@ -245,7 +240,6 @@ body {
   border-radius: 0.5rem;
 }
 
-
 /*
 .h1 {
   color: rgb(55, 53, 47);
@@ -329,9 +323,9 @@ h5 {
 }
 
 .welcome-text {
-    margin: '2rem 0';
-    color: 'rgb(15, 46, 83)';
-    font-family: 'Segoe UI';
-    font-weight: '500';
-    font-size: '16px';
+  margin: "2rem 0";
+  color: "rgb(15, 46, 83)";
+  font-family: "Segoe UI";
+  font-weight: "500";
+  font-size: "16px";
 }

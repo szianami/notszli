@@ -1,80 +1,107 @@
-import React, { useState, useEffect } from 'react';
-import LogoutButton from './logoutButton';
-import { Link } from 'react-router-dom';
-import { debounce } from '../utils/debounce';
-import { auth } from '../utils/firebase';
-import { getAvatar } from '../utils/avatar';
-import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
-import '../index.css';
-import '../App.css';
-import LoginButton from './loginButton';
+import React, { useState, useEffect } from "react";
+import { Box } from "@mui/system";
+import LogoutButton from "./logoutButton";
+import { debounce } from "../utils/debounce";
+import { auth } from "../utils/firebase";
+import { getAvatar } from "../utils/avatar";
+import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
+import "../index.css";
+import "../App.css";
+import LoginButton from "./loginButton";
+import LogoText from "./logoText";
 
-const Navbar = () => {
+const navbarHeight = 60;
+
+const Navbar = ({ contentRef, sidebarWidth }) => {
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [visible, setVisible] = useState(true);
 
-  const handleScroll = debounce(() => {
-    const currentScrollPos = window.pageYOffset;
-    setVisible(
-      (prevScrollPos > currentScrollPos &&
-        prevScrollPos - currentScrollPos > 70) ||
-        currentScrollPos < 10
-    );
-    setPrevScrollPos(currentScrollPos);
-  }, 100);
-
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
+    if (!contentRef) return;
 
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [prevScrollPos, visible, handleScroll]);
+    const handleScroll = debounce(() => {
+      const currentScrollPos = contentRef.scrollTop;
+      setVisible(
+        (prevScrollPos > currentScrollPos &&
+          prevScrollPos - currentScrollPos > 70) ||
+          currentScrollPos < 10
+      );
+      setPrevScrollPos(currentScrollPos);
+    }, 100);
+
+    contentRef.addEventListener("scroll", handleScroll);
+
+    return () => contentRef.removeEventListener("scroll", handleScroll);
+  }, [prevScrollPos, visible, contentRef]);
 
   const navbarStyles = {
-    position: 'relative',
-    height: '60px',
-    width: '100%',
-    transition: 'top 0.6s',
-    display: 'flex',
-    flexWrap: 'inherit',
-    zIndex: '2',
+    display: "flex",
+    justifyContent: "flex-end",
   };
 
   return (
     <div
-      className="navbar navbar-expand-lg navbar-light bg-light"
-      style={{ ...navbarStyles, top: visible ? '0' : '-60px' }}
+      style={{
+        height: `${navbarHeight}px`,
+        position: "relative",
+      }}
     >
-      <Link
-        className="Logo"
-        to={`/`}
-        style={{ textDecoration: 'none', color: '#000042' }}
+      <Box
+        sx={{
+          position: "fixed",
+          paddingRight: {
+            xs: 0,
+            md: sidebarWidth,
+          },
+          height: `${navbarHeight}px`,
+          width: "100%",
+          transition: "top 0.6s",
+          top: visible ? "0" : `${-navbarHeight}px`,
+          zIndex: "2",
+        }}
       >
-        notszli
-      </Link>
-      {auth.currentUser !== null && (
-        <>
-          <div className="user-navbar-container">
-            <div
-              className="avatar avatar-smol"
-              style={{
-                backgroundColor: getAvatar(auth.currentUser.displayName).color,
-              }}
-            >
-              {getAvatar(auth.currentUser.displayName).letters}
-            </div>
-            <div
-              className="sidebar-document-title"
-              style={{ width: 'fit-content', color: '#0f2e53' }}
-            >
-              {auth.currentUser.displayName}
-            </div>
-          </div>
-          <div className="header flex">
-            <LogoutButton />
-          </div>
-        </>
-      )}
-      {auth.currentUser === null && <LoginButton />}
+        <div
+          className="navbar navbar-expand-lg navbar-light bg-light"
+          style={navbarStyles}
+        >
+          <Box
+            sx={{
+              display: {
+                xs: "block",
+                md: sidebarWidth ? "none" : "block",
+              },
+              flex: "auto",
+            }}
+          >
+            <LogoText />
+          </Box>
+          {auth.currentUser !== null && (
+            <>
+              <div className="user-navbar-container">
+                <div
+                  className="avatar avatar-smol"
+                  style={{
+                    backgroundColor: getAvatar(auth.currentUser.displayName)
+                      .color,
+                  }}
+                >
+                  {getAvatar(auth.currentUser.displayName).letters}
+                </div>
+                <div
+                  className="sidebar-document-title"
+                  style={{ width: "fit-content", color: "#0f2e53" }}
+                >
+                  {auth.currentUser.displayName}
+                </div>
+              </div>
+              <div className="header flex">
+                <LogoutButton />
+              </div>
+            </>
+          )}
+          {auth.currentUser === null && <LoginButton />}
+        </div>
+      </Box>
     </div>
   );
 };
